@@ -1,0 +1,10 @@
+# This is Euro
+EUR - 100 - 100tk; 50 - 5000tk; 20 - 5000tk; 10 - 10000tk; 5 - 100tk
+# This is US Dollar
+USD - 100 - 500tk; 50 - 200tk; 20 - 1000tk; 10 - 1000tk; 5 - 500tk; 1 - 1000tk
+# This is Russian rouble
+RUB - 5000 - 500tk; 2000 - 1000tk; 1000 - 2000tk; 500 - 5000tk; 100 - 10000tk; 50 - 1000tk
+# This is Japanese Yen
+JPY - 10000 - 100tk; 5000 - 200tk; 1000 - 2000tk
+# This is Swedish Krona
+SEK - 1000 - 200tk; 500 - 1000tk; 200 - 700tk; 100 - 2000tk; 50 - 1000tk; 20 - 100tk

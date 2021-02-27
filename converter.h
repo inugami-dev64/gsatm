@@ -3,9 +3,12 @@
 
 #ifdef __CONVERTER_C
     #include <stdlib.h>
+    #include <string.h>
     #include <stdint.h>
     #include "hashmap.h"
+    #include "fm.h"
     #define ARR_LEN(x) sizeof(x) / sizeof(x[0])
+
     char *iso4217[] = {
         "AFN", 
         "ALL", 
@@ -25,6 +28,7 @@
         "BZD", 
         "BMD", 
         "INR", 
+        "IDR",
         "BAM", 
         "BWP", 
         "BRL", 
@@ -81,6 +85,7 @@
         "KZT", 
         "KES", 
         "KPW", 
+        "KRW",
         "KWD", 
         "KGS", 
         "LAK", 
@@ -134,6 +139,7 @@
         "SYP", 
         "TWD", 
         "TZS", 
+        "THB",
         "TTD", 
         "TND", 
         "TRY", 
@@ -174,6 +180,7 @@
         "Belize Dollar",
         "Bermudian Dollar",
         "Indian Rupee",
+        "Indonesian Rupee",
         "Boznia and Herzegovina Convertible Mark",
         "Botswana Pula",
         "Brazilian Real",
@@ -230,6 +237,7 @@
         "Kazakhstani Tenge",
         "Kenyan Shilling",
         "North Korean Won",
+        "South Korean Won",
         "Kuwaiti Dinar",
         "Kyrgyzstani Som",
         "Lao Kip",
@@ -283,6 +291,7 @@
         "Syrian Pound",
         "New Taiwan Dollar",
         "Tanzanian Shilling",
+        "Thai Bhat",
         "Trinidad and Tobago Dollar",
         "Tunisian Dinar",
         "Turkish Lira",
@@ -305,7 +314,9 @@
     };
 
     Hashmap cur_map;
+    CurrencyInfo *cis = NULL;
 #endif
-    
+    Hashmap *getCurrencyMap();
     void initConverter();
+    void destroyConverter();
 #endif

@@ -1,9 +1,9 @@
 CC = gcc
 LD_FLAGS = -lcurl
-FLAGS = -g
+FLAGS = -g -O3
 TARGET = atm
 OBJ = 	hashmap.c.o \
-	  	parse_csv.c.o \
+	  	fm.c.o \
 		atm.c.o \
 		converter.c.o 
 
@@ -13,8 +13,8 @@ $(TARGET): $(OBJ)
 hashmap.c.o: hashmap.c
 	$(CC) -c hashmap.c -o hashmap.c.o $(FLAGS)
 
-parse_csv.c.o: parse_csv.c
-	$(CC) -c parse_csv.c -o parse_csv.c.o $(FLAGS)
+fm.c.o: fm.c
+	$(CC) -c fm.c -o fm.c.o $(FLAGS)
 
 atm.c.o: atm.c
 	$(CC) -c atm.c -o atm.c.o $(FLAGS)

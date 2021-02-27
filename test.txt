@@ -1,0 +1,30 @@
+Welcome to Goldstein Bank ATM!
+Fetching currency exchange rates...
+Recieved exchange rates from: 26.02.2021
+ATM> Currency name | ISO4217 code | Banknote avilability ([VALUE] - [AMOUNT])
+Euro
+TAB
+TAB
+TAB
+TAB
+TAB
+Euro					EUR	100 - 100; 50 - 5000; 20 - 5000; 10 - 10000; 
+US Dollar
+TAB
+TAB
+TAB
+US Dollar   			USD	100 - 500; 50 - 200; 20 - 1000; 10 - 1000; 5 - 500; 
+Russian Ruble
+TAB
+TAB
+Russian Ruble   		RUB	5000 - 500; 2000 - 1000; 1000 - 2000; 500 - 5000; 100 - 10000; 
+Japanese Yen
+TAB
+TAB
+TAB
+Japanese Yen			JPY	10000 - 100; 5000 - 200; 
+Swedish Krona
+TAB
+TAB
+Swedish Krona   		SEK	1000 - 200; 500 - 1000; 200 - 700; 100 - 2000; 50 - 1000; 20 - 100; 
+ATM> 
