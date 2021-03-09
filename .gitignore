@@ -2,4 +2,5 @@ atm
 *.o
 tags
 rates.info
-ex_rates.info
+x_rates.info
+ex_rates.csv
