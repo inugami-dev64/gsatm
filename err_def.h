@@ -3,8 +3,7 @@
 
 /* This file contains macros to most common error messages */
 #define REALLOC_ERR(purpose)        fprintf(stderr, "Failed to reallocate memory for %s\n", purpose), \
- 
-exit(EXIT_FAILURE)
+                                    exit(EXIT_FAILURE)
 
 #define PARSE_ERR(file, line)       fprintf(stderr, "Parsing error in file %s on line %ld\n", file, line), \
                                     exit(EXIT_FAILURE)

@@ -11,3 +11,9 @@ NT:
 SISEND: find Japan  
 VÄLJUND: Japanese Yen - JPY 127.0000  
 * Kui aega on liiga palju siis lisada võimalus luua ATMile admin prompt raha laadimiseks
+
+# Getting started
+`$ mkdir build`  
+`$ cd build`  
+`$ cmake .. -DCURL_LIBRARY_PATH=[PATH] -DCURL_INCLUDE_PATH=[PATH]`
+
