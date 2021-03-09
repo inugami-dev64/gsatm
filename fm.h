@@ -56,10 +56,10 @@
     );
 #endif
 /* For information about currency value related to Euros */
-typedef struct ExchangeInfo {
+typedef struct SafeFloat {
     uint32_t mantissa;
     int val_exp;
-} ExchangeInfo;
+} SafeFloat;
 
 /* For information about each currency's cash reserve in ATM */
 typedef struct CashStatus {
@@ -72,7 +72,7 @@ typedef struct CashStatus {
 typedef struct CurrencyInfo {
     char *code;
     char *name;
-    ExchangeInfo ex;
+    SafeFloat ex;
     CashStatus cs;
 } CurrencyInfo;
 
