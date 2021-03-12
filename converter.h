@@ -4,10 +4,15 @@
 #ifdef __CONVERTER_C
     #include <stdlib.h>
     #include <string.h>
+    #include <stdio.h>
     #include <stdint.h>
+    #include "err_def.h"
     #include "hashmap.h"
     #include "fm.h"
+    #include "algorithm.h"
+    #define ATM_MIN_WITHDRAWAL_CASH     90 // % of cash available in atm
     #define ARR_LEN(x) sizeof(x) / sizeof(x[0])
+
 
     char *iso4217[] = {
         "AFN", 
@@ -316,7 +321,27 @@
     Hashmap cur_map;
     CurrencyInfo *cis = NULL;
 #endif
+    
+    /*
+     * Specify currency conversion type
+     */
+    typedef enum ConversionMode {
+        ATM_CONVERSION_MODE_MAX         = 0,
+        ATM_CONVERSION_MODE_MIN         = 1,
+        ATM_CONVERSION_MODE_OPTIMAL     = 2,
+        ATM_CONVERSION_MODE_ALL_BILLS   = 3
+    } ConversionMode;
+
+
     Hashmap *getCurrencyMap();
+    void sprintSafeFloat(char *fl_format, char *str, SafeFloat sf);
+    WithdrawReport convertCurrency (
+        uint64_t amount,
+        CurrencyInfo *p_src,
+        CurrencyInfo *p_dst,
+        ConversionMode cm
+    );
+
     void initConverter();
     void destroyConverter();
 #endif

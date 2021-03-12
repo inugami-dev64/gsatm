@@ -35,97 +35,8 @@ char *__readFileToBuffer(char *file_name) {
 }
 
 
-size_t __lc(char *buf) {
-    // TODO: Find total line count
-    size_t line_c = 1;
-    char *line_beg = buf, *line_end = buf;
-    while((line_end = strchr(line_end, 0x0A))) {
-        line_c++;
-        line_end++;
-        if(line_end < &buf[strlen(buf) - 1] && *line_end == 0x00)
-            break;
-    }
-
-    return line_c;
-}
-
-
-void __pushSplitStr (
-    char *str, 
-    size_t n, 
-    char ***p_out_strs, 
-    size_t *p_out_str_c
-) {
-    (*p_out_str_c)++;
-    char **tmp = (char**) realloc (
-        (*p_out_strs),
-        (*p_out_str_c) * sizeof(char)
-    );
-
-    if(!tmp) REALLOC_ERR("string array");
-    
-    (*p_out_strs) = tmp;
-    (*p_out_strs)[(*p_out_str_c) - 1] = (char*) calloc (
-        n + 1,
-        sizeof(char)
-    );
-
-    strncpy (
-        (*p_out_strs)[(*p_out_str_c) - 1],
-        str,
-        n
-    );
-}
-
-
-bool __isAlphabetical (
-    char *str,
-    size_t len
-) {
-    for(size_t i = 0; i < len; i++) {
-        if(!(str[i] < 0x5b && str[i] > 0x40) && !(str[i] < 0x7b && str[i] > 0x60))
-            return false;
-    }
-
-    return true;
-}
-
-
-void __toUpperCase (
-    char *str,
-    size_t len
-) {
-    for(size_t i = 0; i < len; i++) {
-        if(str[i] < 0x7b && str[i] > 0x60)
-            str[i] -= 0x20;
-    }
-}
-
-
-void __rmLineComments (
-    char cm_sym, 
-    char *buf
-) {
-    // TODO: Remove all comments from line that start with identifier cm_sym
-    char *beg = buf, *end = buf;
-    while((beg = strchr(end, (int) cm_sym))) {
-        end = strchr(beg, 0x0A);
-        if(!beg) return;
-        if(!end) end = buf + strlen(buf);
-        for(size_t i = 0; i < end - beg; i++)
-            *(beg + i) = 0x20;
-
-        end++;
-        if(end >= buf + strlen(buf) || *end == 0x00)
-            break;
-    }
-}
-
-
-/***************************************/
 /***************************************/
 /******** CSV PARSING FUNCTIONS ********/
-/***************************************/
 /***************************************/
 void csv_FetchExRates(char *out_file) {
     // TODO: Fetch information about exchange rates
@@ -284,9 +195,9 @@ void csv_ParseCurrencyInfo (
             // TODO: Write meta data
             else {
                 if(qmk[1] - qmk[0] - 1) 
-                    __pushSplitStr(qmk[0] + 1, qmk[1] - qmk[0] - 1, p_meta, p_meta_c);
+                    str_PushSplitStr(qmk[0] + 1, qmk[1] - qmk[0] - 1, p_meta, p_meta_c);
                 if(qmk[3] - qmk[2] - 1)
-                    __pushSplitStr(qmk[2] + 1, qmk[3] - qmk[2] - 1, p_meta, p_meta_c);
+                    str_PushSplitStr(qmk[2] + 1, qmk[3] - qmk[2] - 1, p_meta, p_meta_c);
             }
         }
 
@@ -357,9 +268,7 @@ char *csv_MetaExtractDate (
 
 
 /****************************************/
-/****************************************/
 /******** CASH LOADER FUNCTIONS *********/
-/****************************************/
 /****************************************/
 void cash_ParseData (
     char *cash_file, 
@@ -369,8 +278,8 @@ void cash_ParseData (
 ) {
     // TODO: Load buffer with cash data and remove comments
     char *buf = __readFileToBuffer(cash_file);
-    size_t line_c = __lc(buf);
-    __rmLineComments('#', buf);
+    size_t line_c = str_Lc(buf);
+    str_RmLineComments('#', buf);
     size_t line_i = 1;
 
     CurrencyInfo *p_ci;
@@ -404,10 +313,10 @@ void cash_ParseData (
             prev += 3;
         }
 
-        if(!__isAlphabetical(code, 3))
+        if(!str_IsAlphabetical(code, 3))
             PARSE_ERR(cash_file, line_i);
         
-        __toUpperCase(code, 3);
+        str_ToUpperCase(code, 3);
         p_ci = findValue(p_cm, code, 3);
         if(!p_ci) CUR_CODE_ERR(code);
 
@@ -440,51 +349,68 @@ void cash_ParseData (
         }
 
         // TODO: Extract banknote information
-        uint32_t banknote_c = 0;
-        uint32_t *banknote_vals = (uint32_t*) calloc (
+        uint64_t banknote_c = 0;
+        uint64_t *banknote_vals = (uint64_t*) calloc (
             note_cap, 
-            sizeof(uint32_t)
+            sizeof(uint64_t)
         );
-        uint32_t *val_c = (uint32_t*) calloc (
+
+        int64_t *val_c = (int64_t*) calloc (
             note_cap,
-            sizeof(uint32_t)
+            sizeof(int64_t)
         );
         char note_val[32], note_c[32];
         
         // TODO: Extract information from cash file to CashStatus structs
         char *info_br = prev;
+        char *scs, *nls;
         tmp = prev;
+
         while (
             (
-                (info_br = strchr(tmp, (int) ';')) || 
-                (info_br = strchr(tmp, 0x0A)) || 
-                (info_br = strchr(tmp, 0x00))
+                strchr(tmp, (int) ';') || 
+                strchr(tmp, 0x0A)
             ) && 
             info_br <= next
         ) {
+            // Find appropriate separator 
+            scs = strchr(tmp, (int) ';');
+            nls = strchr(tmp, 0x0A);
+            if(scs && nls)
+                info_br = scs < nls ? scs : nls;
+            else if(!scs)
+                info_br = nls;
+            else if(!nls)
+                info_br = scs;
+            
+            // Reallocate memory for banknote values if needed
             banknote_c++;
             if(banknote_c >= note_cap) {
                 note_cap *= 2;
-                uint32_t *tmp = (uint32_t*) realloc (
+                uint64_t *tmp_val = (uint64_t*) realloc (
                     banknote_vals,
-                    note_cap * sizeof(uint32_t)
+                    note_cap * sizeof(uint64_t)
                 );
 
-                if(!tmp) REALLOC_ERR("banknote name values");
+                if(!tmp_val) REALLOC_ERR("banknote name values");
 
-                banknote_vals = tmp;
-                tmp = (uint32_t*) realloc (
+                banknote_vals = tmp_val;
+                tmp_val = (uint64_t*) realloc (
                     val_c,
-                    note_cap * sizeof(uint32_t)
+                    note_cap * sizeof(uint64_t)
                 );
 
-                if(!tmp) REALLOC_ERR("banknote counts");
-                val_c = tmp;
+                if(!tmp_val) REALLOC_ERR("banknote counts");
+                val_c = (int64_t*) tmp_val;
             }
-            while(prev < info_br && (*prev == 0x20 || *prev == '\t')) prev++;
+
+            // Skip all whitespaces and tabs
+            while(prev < info_br && (*prev == 0x20 || *prev == '\t')) 
+                prev++;
             
+            // Check for any parsing errors in cash file
             char *sp = strchr(prev, 0x20);
-            char *hy = strchr(prev, '-');
+            char *hy = strchr(prev, (int) '-');
             char *end;
 
             if(!hy || sp >= info_br || hy >= info_br)
@@ -528,10 +454,12 @@ void cash_ParseData (
         p_ci->cs.banknote_vals = banknote_vals;
         p_ci->cs.val_c = val_c;
 
+        al_SortBankNotes(&p_ci->cs); 
+
         line_i++;
         next++;
         tmp = next;
-        prev = next;
+        prev = next; 
         if(next >= &buf[strlen(buf)] || !(*next))
             break;
     }

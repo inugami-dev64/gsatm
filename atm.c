@@ -1,10 +1,6 @@
 #define __USER_C
 #include "atm.h"
 
-#define bool uint8_t
-#define true 1
-#define false 0
-
 static char **rt_codes = NULL;
 static size_t rt_code_c = 0;
 
@@ -18,6 +14,8 @@ void __initAtm() {
 
     char **meta = NULL;
     size_t meta_c = 0;
+
+    // Parse currency information fetched from Eesti Pank
     csv_ParseCurrencyInfo (
         ATM_EX_RATES_FILE,
         getCurrencyMap(), 
@@ -26,6 +24,8 @@ void __initAtm() {
         &meta,
         &meta_c
     );
+
+    // Parse currency cash data information 
     cash_ParseData (
         ATM_CASH_INFO_FILE, 
         getCurrencyMap(),
@@ -41,16 +41,20 @@ void __initAtm() {
         if(meta[i])
             free(meta[i]);
     }
-
-    /*if(meta) */
-        /*free(meta);*/
 }
 
 
-InputAction __inputParse(char *in, char ***p_in_params) {
+/*
+ * Parse user input and return InputAction value for it
+ */
+InputAction __inputParse (
+    char *in, 
+    char ***p_in_params, 
+    size_t *p_in_c
+) {
     // TODO: Extract user parameters
     char *p_ins = in, *n_ins = in;
-    char *words[512] = {0};
+    static char *words[512] = {0};
     size_t len[512] = {0};
     if(!in)
         return ATM_INPUT_ACTION_UNKNOWN;
@@ -60,6 +64,7 @@ InputAction __inputParse(char *in, char ***p_in_params) {
     size_t i = 0;
     char *tmp = NULL;
     while((tmp = strchr(n_ins, 0x20)) || (tmp = strchr(n_ins, 0x00))) {
+        *tmp = 0x00;
         n_ins = tmp;
         while(p_ins < n_ins && *p_ins == 0x20)
             p_ins++;
@@ -77,72 +82,32 @@ InputAction __inputParse(char *in, char ***p_in_params) {
             break;
     }
 
-    (*p_in_params) = (char**) calloc (
-        i + 1,
-        sizeof(char*)
-    );
 
-    memcpy (
-        (*p_in_params),
-        words,
-        i + 1
-    );
+    (*p_in_c) = i;
+    (*p_in_params) = words;
     
     // TODO: Check input actions
-    if(i >= 1 && !strncmp(words[0], "exit", len[0]))
+    if(i == 1 && !strncmp(words[0], "exit", len[0]))
         return ATM_INPUT_ACTION_EXIT;
-    if(i >= 1 && !strncmp(words[0], "help", len[0]))
+    if(i == 1 && !strncmp(words[0], "help", len[0]))
         return ATM_INPUT_ACTION_HELP;
     if(i >= 1 && !strncmp(words[0], "list", len[0])) {
-        if(i >= 2 && !strncmp(words[1], "rates", len[1])) {
+        if(i == 2 && !strncmp(words[1], "rates", len[1])) {
             return ATM_INPUT_ACTION_LIST_RATES;
         }
-        else if(i >= 2 && !strncmp(words[1], "status", len[1]))
+        else if(i == 2 && !strncmp(words[1], "status", len[1]))
             return ATM_INPUT_ACTION_LIST_STATUS;
         else 
             return ATM_INPUT_ACTION_UNKNOWN;
     }
-    if(i >= 4 && !strncmp(words[1], "convert", len[1]) && atof(words[1]))
-        return ATM_INPUT_ACTION_CONVERT;
+
+
+    if(i >= 5 && !strncmp(words[0], "convert", len[0]) && atoi(words[1])) {
+        if(strlen(words[2]) == 3 && strlen(words[4]) == 3 && !strcmp(words[3], "to"))
+            return ATM_INPUT_ACTION_CONVERT;
+    }
 
     return ATM_INPUT_ACTION_UNKNOWN;
-}
-
-
-/* Get exchange rate in printable format */
-char *__getPrintableExRate(long mantissa, int exp) {
-    static char rate[32];
-    memset(rate, 0, 32);
-    sprintf (
-        rate, 
-        "%ld", 
-        mantissa
-    );
-    
-    char *tmp = rate + strlen(rate) - abs(exp);
-    size_t dif;
-    if(tmp > rate) {
-        if(strlen(rate) + 1 < 32) {
-            memmove(tmp + 1, tmp, strlen(tmp));
-            *tmp = '.';
-        }
-        else MEM_CORRUPTION("Failed to print exchange rates");
-    }
-
-    else {
-        // dif becomes negative exponant
-        dif = rate - tmp + 1;
-        if(strlen(rate) + dif + 1 < 32) {
-            memmove(tmp + dif + 1, tmp, strlen(tmp));
-            *(tmp) = '0';
-            *(tmp + 1) = '.';
-            for(size_t i = 0; i < dif - 1; i++)
-                *(tmp + i + 1) = '0';
-        }
-        else MEM_CORRUPTION("Failed to print exchange rates");
-    }
-
-    return rate;
 }
 
 
@@ -180,9 +145,7 @@ char *__getTextPadding(char *text, size_t req_sp) {
 
 
 /**************************************/
-/**************************************/
 /******* User action functions ********/
-/**************************************/
 /**************************************/
 
 void __listRates() {
@@ -201,7 +164,8 @@ void __listRates() {
         p_ci = findValue(getCurrencyMap(), rt_codes[i], 3);
         if(!p_ci) CUR_CODE_ERR(rt_codes[i]);
 
-        char *rate = __getPrintableExRate(p_ci->ex.mantissa, p_ci->ex.val_exp);
+        char rate[64] = {0};
+        sprintSafeFloat("%.4f", rate, p_ci->ex);
         char *name = p_ci->name;
         pad = __getTextPadding (
             p_ci->name, 
@@ -251,15 +215,125 @@ void __listStatus() {
             p_ci->code
         );
         for(size_t j = 0; j < p_ci->cs.banknote_c; j++)
-            printf("%d - %d; ", p_ci->cs.banknote_vals[j], p_ci->cs.val_c[j]);        
+            printf("%ld - %ld; ", p_ci->cs.banknote_vals[j], p_ci->cs.val_c[j]);        
 
         printf("\n");
     }
 }
 
 
+void __convertCurrency (
+    char **params,
+    size_t param_c
+) {
+    ConversionMode cm = ATM_CONVERSION_MODE_OPTIMAL;
+    if(param_c == 6) {
+        if(!strcmp(params[5], "max"))
+            cm = ATM_CONVERSION_MODE_MAX;
+        else if(!strcmp(params[5], "min"))
+            cm = ATM_CONVERSION_MODE_MIN;
+        else if(!strcmp(params[5], "dif"))
+            cm = ATM_CONVERSION_MODE_ALL_BILLS;
+    }
+    else cm = ATM_CONVERSION_MODE_MIN;
 
+    uint64_t amount = atol(params[1]);
+    if(amount > ATM_CASH_HANDLING_LIMIT) {
+        printf (
+            "%ld is over the withdrawal limit of %ld\n",
+            amount,
+            ATM_CASH_HANDLING_LIMIT
+        );  
+        return;
+    }
+    str_ToUpperCase(params[2], strlen(params[2]));
+    str_ToUpperCase(params[4], strlen(params[4]));
+
+    Hashmap *hashm = getCurrencyMap();
+    CurrencyInfo *p_src = (CurrencyInfo*) findValue (
+        hashm,
+        params[2],
+        3
+    );
+
+    if(!p_src) {
+        fprintf (
+            stderr,
+            "Invalid source currency code '%s'\n",
+            params[2]
+        );
+        return;
+    }
+
+    CurrencyInfo *p_dst = (CurrencyInfo*) findValue (
+        hashm,
+        params[4],
+        3
+    );
+
+    if(!p_dst) {
+        fprintf (
+            stderr,
+            "Invalid destination currency code '%s'\n",
+            params[4]
+        );
+        return;
+    }
+
+    WithdrawReport wr = convertCurrency (
+        amount,
+        p_src,
+        p_dst,
+        cm
+    );
+
+    if(!wr.cs.banknote_c)
+        return;
+
+    printf("Money withdrawal report\nRecieved bills | Quantity\n");
+    for(size_t i = 0; i < wr.cs.banknote_c; i++) {
+        if(wr.cs.banknote_vals[i] && wr.cs.val_c[i])
+            printf (
+                "%ld %s | %ld\n", 
+                wr.cs.banknote_vals[i], 
+                p_dst->code,
+                wr.cs.val_c[i]
+            );
+    }
+
+
+    SafeFloat src_unex_fl = wr.unexchanged;
+    src_unex_fl.mantissa = (uint64_t) (
+        ((float) wr.unexchanged.mantissa / (float) p_dst->ex.mantissa) * 
+        (float) p_src->ex.mantissa
+    );
+
+    // Check if rounding needs to be done
+    amount *= al_pow(10, abs(src_unex_fl.val_exp));
+    if(amount - src_unex_fl.mantissa == 1)
+        src_unex_fl.mantissa++;
+
+    char src_unex[64] = {0};
+    char dst_unex[64] = {0};
+    sprintSafeFloat("%.4f", dst_unex, wr.unexchanged);
+    sprintSafeFloat("%.4f", src_unex, src_unex_fl);
+    printf (
+        "Unexchanged money: %s %s / %s %s\n", 
+        dst_unex, 
+        p_dst->code,
+        src_unex,
+        p_src->code
+    );
+
+    // Cleanup WithdrawReport
+    free(wr.cs.banknote_vals);
+    free(wr.cs.val_c);
+}
+
+
+/* Wait for user input */
 void __inputPoll() {
+    // input buffer can theorethically overflow
     char buf[2048];
 
     // TODO: Poll input from end user
@@ -271,7 +345,8 @@ void __inputPoll() {
         if(!tmp) GEN_ERR("Failed to read user input");
         
         char **params = NULL;
-        InputAction ia = __inputParse(buf, &params);
+        size_t param_c = 0;
+        InputAction ia = __inputParse(buf, &params, &param_c);
 
         switch(ia) 
         {
@@ -290,6 +365,12 @@ void __inputPoll() {
         case ATM_INPUT_ACTION_LIST_STATUS:
             __listStatus();
             break;
+
+        case ATM_INPUT_ACTION_CONVERT: {
+            __convertCurrency(params, param_c);
+            break;
+       }
+
         default:
             __ATM_UNKNOWN_COMMAND(buf);
             break;

@@ -5,7 +5,9 @@ TARGET = atm
 OBJ = 	hashmap.c.o \
 	  	fm.c.o \
 		atm.c.o \
-		converter.c.o 
+		converter.c.o \
+		strparse.c.o \
+		algorithm.c.o 
 
 $(TARGET): $(OBJ)
 	$(CC) -o $(TARGET) $(OBJ) $(LD_FLAGS)
@@ -21,6 +23,12 @@ atm.c.o: atm.c
 
 converter.c.o: converter.c
 	$(CC) -c converter.c -o converter.c.o $(FLAGS)
+
+strparse.c.o: strparse.c
+	$(CC) -c strparse.c -o strparse.c.o $(FLAGS)
+
+algorithm.c.o: algorithm.c
+	$(CC) -c algorithm.c -o algorithm.c.o $(FLAGS)
 
 .PHONY: clean
 clean:
