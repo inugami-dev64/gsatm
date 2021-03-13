@@ -226,7 +226,7 @@ void __convertCurrency (
     char **params,
     size_t param_c
 ) {
-    ConversionMode cm = ATM_CONVERSION_MODE_OPTIMAL;
+    WithdrawMode cm;
     if(param_c == 6) {
         if(!strcmp(params[5], "max"))
             cm = ATM_CONVERSION_MODE_MAX;

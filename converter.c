@@ -126,7 +126,7 @@ WithdrawReport convertCurrency (
     uint64_t amount,
     CurrencyInfo *p_src,
     CurrencyInfo *p_dst,
-    ConversionMode cm
+    WithdrawMode cm
 ) {
     WithdrawReport wr = {0};
     
@@ -175,7 +175,7 @@ WithdrawReport convertCurrency (
 
     dst_c *= al_pow(10, abs(exp));
     if(dst_c * ATM_MIN_WITHDRAWAL_CASH / 100 < cn_value.mantissa) {
-        printf("Not enough cash for currency %s\n", p_dst->code);
+        wr.error_code = WDR_ERR_NOT_ENOUGH_CASH;
         return wr;
     }
 

@@ -4,9 +4,9 @@ FLAGS = -g -O3
 TARGET = atm
 OBJ = 	hashmap.c.o \
 	  	fm.c.o \
-		atm.c.o \
 		converter.c.o \
 		strparse.c.o \
+		atm.c.o \
 		algorithm.c.o 
 
 $(TARGET): $(OBJ)

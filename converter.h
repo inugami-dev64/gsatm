@@ -325,12 +325,11 @@
     /*
      * Specify currency conversion type
      */
-    typedef enum ConversionMode {
+    typedef enum WithdrawMode {
         ATM_CONVERSION_MODE_MAX         = 0,
         ATM_CONVERSION_MODE_MIN         = 1,
-        ATM_CONVERSION_MODE_OPTIMAL     = 2,
-        ATM_CONVERSION_MODE_ALL_BILLS   = 3
-    } ConversionMode;
+        ATM_CONVERSION_MODE_ALL_BILLS   = 2
+    } WithdrawMode;
 
 
     Hashmap *getCurrencyMap();
@@ -339,7 +338,7 @@
         uint64_t amount,
         CurrencyInfo *p_src,
         CurrencyInfo *p_dst,
-        ConversionMode cm
+        WithdrawMode cm
     );
 
     void initConverter();

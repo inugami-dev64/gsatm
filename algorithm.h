@@ -71,12 +71,30 @@
 
 #endif
 
+/*
+ * Error codes: 
+ * 0 - success
+ * 1 - cash handling limit reached
+ * 2 - not enough cash in atm
+ * 3 - invalid source currency code
+ * 4 - invalid destination currency code
+ */
+typedef enum WDRErrorCodes {
+    WDR_SUCCESS                             = 0,
+    WDR_ERR_CASH_HANDLING_LIMIT_REACHED     = 1,
+    WDR_ERR_NOT_ENOUGH_CASH                 = 2,
+    WDR_ERR_INVALID_SRC_CURRENCY_CODE       = 3,
+    WDR_ERR_INVALID_DST_CURRENCY_CODE       = 4
+} WDRErrorCodes;
+
+
 /* 
  * Store information about currency conversion
  */
 typedef struct WithdrawReport {
     CashStatus cs;
     SafeFloat unexchanged;
+    WDRErrorCodes error_code;
 } WithdrawReport;
 
 // For debugging
