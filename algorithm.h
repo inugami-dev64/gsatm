@@ -7,7 +7,9 @@
     #include <stdint.h>
     #include <stdio.h>
     #include <limits.h>
+    #include "lib_export.h"
     #include "hashmap.h"
+    #include "lib_export.h"
     #include "fm.h"
 
     typedef uint8_t bool;
@@ -102,45 +104,46 @@ typedef struct WithdrawReport {
     #include "converter.h" // sprintSafeFloat()
 #endif
 
-/* 
- * Use merge sort algorithm to sort all currency banknotes 
- * by value in ascending order 
- */
-void al_SortBankNotes(CashStatus *p_cs);
+#if !defined(__USER_C) || !defined(_WIN32)
+	/* 
+	 * Use merge sort algorithm to sort all currency banknotes 
+	 * by value in ascending order 
+	 */
+	LIB_EXPORT void CALL_CON al_SortBankNotes(CashStatus *p_cs);
 
 
-/* 64 bit integer exponentiation */
-uint64_t al_pow(uint64_t base, uint64_t exp);
+	/* 64 bit integer exponentiation */
+	LIB_EXPORT uint64_t CALL_CON al_pow(uint64_t base, uint64_t exp);
 
-/**************************************************/
-/******** Algorithms for money withdrawal *********/
-/**************************************************/
+	/**************************************************/
+	/******** Algorithms for money withdrawal *********/
+	/**************************************************/
 
-/*
- * Withdraw as much cash as possible
- */
-WithdrawReport al_WithdrawMaxBillsC (
-    SafeFloat *p_val, 
-    CurrencyInfo *p_cur
-);
-
-
-/*
- * Withdraw as little cash as possible
- */
-WithdrawReport al_WithdrawMinBillsC (
-    SafeFloat *p_val,
-    CurrencyInfo *p_cur
-);
+	/*
+	 * Withdraw as much cash as possible
+	 */
+	LIB_EXPORT WithdrawReport CALL_CON al_WithdrawMaxBillsC (
+		SafeFloat *p_val, 
+		CurrencyInfo *p_cur
+	);
 
 
-/*
- * Withdraw as much different banknotes as possible
- */
-WithdrawReport al_WithdrawDifBillsC (
-    SafeFloat *p_val,
-    CurrencyInfo *p_cur
-);
+	/*
+	 * Withdraw as little cash as possible
+	 */
+	LIB_EXPORT WithdrawReport CALL_CON al_WithdrawMinBillsC (
+		SafeFloat *p_val,
+		CurrencyInfo *p_cur
+	);
 
+
+	/*
+	 * Withdraw as much different banknotes as possible
+	 */
+	LIB_EXPORT WithdrawReport CALL_CON al_WithdrawDifBillsC (
+		SafeFloat *p_val,
+		CurrencyInfo *p_cur
+	);
+#endif
 
 #endif

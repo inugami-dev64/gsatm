@@ -1,19 +1,38 @@
 # Goldstein Bank ATM  
-## TODO:  
-* Lisada ATMi raha laadimine failist vastavalt juhendile  
-* Koostada valuutavahetuse funktsioonid  
-* Koostada funktsioon, mis loetleb kõik valuutad ja nende kursid  
-* Koostada funktsioon, mis loetleb ATMi sularaha seisu  
+## Getting started
+### Windows
+Prerequisites:  
+* CMake  
+* Visual Studio     
 
-## Extras:
-* Lisada võimalus leida riigi järgi selle valuuta ja vahetuskurss  
-NT:   
-SISEND: find Japan  
-VÄLJUND: Japanese Yen - JPY 127.0000  
-* Kui aega on liiga palju siis lisada võimalus luua ATMile admin prompt raha laadimiseks
+Please make sure that x64 Native Tools Command Prompt for VS is used for the whole process, otherwise the script will probably fail since no nmake can be found.  
+In order to generate Visual Studio solution follow these steps:
+```
+git clone --recursive https://github.com/inugami-dev64/gsatm
+cd gsatm
+mkdir build
+.\build_curl.bat [VS VERSION] build
+cmake ..
+```
+Where [VS VERSION] specifies the version of Visual Studio used.  
+Now all that is left to do is use the solution to build the project.   
 
-# Getting started
-`$ mkdir build`  
-`$ cd build`  
-`$ cmake .. -DCURL_LIBRARY_PATH=[PATH] -DCURL_INCLUDE_PATH=[PATH]`
+### Linux
+Prerequisites:  
+* CMake
+* Make
+* curl
+* gcc
 
+In order to generate Makefile for Linux follow these steps:
+```
+git clone https://github.com/inugami-dev64/gsatm
+cd gsatm
+mkdir build
+cd build
+cmake ..
+make
+```
+
+## Troubleshooting
+When starting the program it  

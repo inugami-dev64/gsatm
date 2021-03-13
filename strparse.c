@@ -2,7 +2,7 @@
 #include "strparse.h"
 
 /* Find total line count from buffer */
- size_t str_Lc(char *buf) {
+LIB_EXPORT size_t CALL_CON str_Lc(char *buf) {
     // TODO: Find total line count
     size_t line_c = 1;
     char *line_beg = buf, *line_end = buf;
@@ -20,7 +20,7 @@
  * Read n bytes from str, then reallocte memory and push
  * the substring to p_out_strs
  */
- void str_PushSplitStr (
+LIB_EXPORT void CALL_CON str_PushSplitStr (
     char *str, 
     size_t n, 
     char ***p_out_strs, 
@@ -29,7 +29,7 @@
     (*p_out_str_c)++;
     char **tmp = (char**) realloc (
         (*p_out_strs),
-        (*p_out_str_c) * sizeof(char)
+        (*p_out_str_c) * sizeof(char*)
     );
 
     if(!tmp) REALLOC_ERR("string array");
@@ -52,7 +52,7 @@
  * Check if string only contains uppercase or lowercase alphabetical characters 
  * O(n)
  */
- bool str_IsAlphabetical (
+LIB_EXPORT bool CALL_CON str_IsAlphabetical (
     char *str, 
     size_t len
 ) {
@@ -66,7 +66,7 @@
 
 
 /* Make all characters from string uppercase */
- void str_ToUpperCase (
+LIB_EXPORT void CALL_CON str_ToUpperCase (
     char *str,
     size_t len
 ) {
@@ -78,7 +78,7 @@
 
 
 /* Remove all line comments */
- void str_RmLineComments (
+LIB_EXPORT void CALL_CON str_RmLineComments (
     char cm_sym, 
     char *buf
 ) {

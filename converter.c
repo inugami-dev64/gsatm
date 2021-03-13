@@ -1,7 +1,7 @@
 #define __CONVERTER_C
 #include "converter.h"
 
-void initConverter() {
+LIB_EXPORT void CALL_CON initConverter() {
     // TODO: Initialise hashmap for ISO 4217 currency codes
     newHashmap (
         &cur_map, 
@@ -34,7 +34,7 @@ void initConverter() {
  * Create printable string from SafeFloat 
  * str must be large enough for SafeFloat
  */
-void sprintSafeFloat (
+LIB_EXPORT void CALL_CON sprintSafeFloat (
     char *fl_format, 
     char *str, 
     SafeFloat sf
@@ -122,7 +122,7 @@ void sprintSafeFloat (
 
 
 /* Convert currency from p_src to p_dst and change cash status */
-WithdrawReport convertCurrency ( 
+LIB_EXPORT WithdrawReport CALL_CON convertCurrency ( 
     uint64_t amount,
     CurrencyInfo *p_src,
     CurrencyInfo *p_dst,
@@ -157,7 +157,7 @@ WithdrawReport convertCurrency (
     cn_value.mantissa = (uint64_t) (((float) amount / (float) p_src->ex.mantissa) * (float) p_dst->ex.mantissa);
     cn_value.val_exp = exp;
 
-    char buf[64];
+    char buf[64] = { 0 };
     sprintSafeFloat("%.4f", buf, cn_value);
     printf (
         "%ld %s is about %s %s\n", 
@@ -204,12 +204,12 @@ WithdrawReport convertCurrency (
 }
 
 
-void destroyConverter() {
+LIB_EXPORT void CALL_CON destroyConverter() {
     free(cis);
     free(cur_map.map_data);
 }
 
 
-Hashmap *getCurrencyMap() {
+LIB_EXPORT Hashmap* CALL_CON getCurrencyMap() {
     return &cur_map;
 }

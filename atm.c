@@ -7,10 +7,77 @@ static size_t rt_code_c = 0;
 static char **ld_codes = NULL;
 static size_t ld_code_c = 0;
 
+
+
+#ifdef _WIN32
+	/*
+	 * Load DLL and all pointers to functions that are used
+	 */
+	void __loadDLL() {
+        __lib_ins = LoadLibrary("libatm.dll");
+        if (!__lib_ins) {
+            fprintf(stderr, "Could not load libatm.dll\n");
+            exit(EXIT_FAILURE);
+        }
+
+        // Load all library functions that are used
+        initConverter = (void(__stdcall*)())GetProcAddress(__lib_ins, "initConverter");
+        destroyConverter = (void(__stdcall*)())GetProcAddress(__lib_ins, "destroyConverter");
+        csv_FetchExRates = (void(__stdcall*)(char*))GetProcAddress(__lib_ins, "csv_FetchExRates");
+
+        csv_ParseCurrencyInfo = (void(__stdcall*)(char*, Hashmap*, char***, size_t*, char***, size_t*)) GetProcAddress(
+            __lib_ins,
+            "csv_ParseCurrencyInfo"
+        );
+
+        cash_ParseData = (void(__stdcall*)(char*, Hashmap*, char***, size_t*)) GetProcAddress (
+            __lib_ins,
+            "cash_ParseData"
+        );
+
+        csv_MetaExtractDate = (char* (__stdcall*)(char**, size_t)) GetProcAddress (
+            __lib_ins,
+            "csv_MetaExtractDate"
+        );
+
+        findValue = (void* (__stdcall*)(Hashmap*, void*, size_t)) GetProcAddress (
+            __lib_ins,
+            "findValue"
+        );
+
+        getCurrencyMap = (Hashmap* (__stdcall*)()) GetProcAddress (
+            __lib_ins,
+            "getCurrencyMap"
+        );
+
+        
+        sprintSafeFloat = (void(__stdcall*)(char*, char*, SafeFloat)) GetProcAddress (
+            __lib_ins,
+            "sprintSafeFloat"
+        );
+
+        str_ToUpperCase = (void(__stdcall*)(char*, size_t)) GetProcAddress (
+            __lib_ins,
+            "str_ToUpperCase"
+        );
+
+        convertCurrency = (WithdrawReport(__stdcall*)(uint64_t, CurrencyInfo*, CurrencyInfo*, WithdrawMode)) GetProcAddress (
+            __lib_ins,
+            "convertCurrency"
+        );
+
+        al_pow = (uint64_t(__stdcall*)()) GetProcAddress (
+            __lib_ins,
+            "al_pow"
+        );
+	}
+#endif
+
 void __initAtm() {
     initConverter();
     printf("Welcome to Goldstein Bank ATM!\n");
     csv_FetchExRates(ATM_EX_RATES_FILE);
+
 
     char **meta = NULL;
     size_t meta_c = 0;
@@ -119,7 +186,7 @@ size_t __getReqSpaceIndent (
     size_t pos = 0;
     CurrencyInfo *p_ci = NULL;
     for(size_t i = 0; i < rt_code_c; i++) {
-        p_ci = findValue(p_hm, rt_codes[i], 3);
+        p_ci = (CurrencyInfo*) findValue(p_hm, rt_codes[i], 3);
         if(!p_ci) CUR_CODE_ERR(rt_codes[i]);
 
         if(strlen(p_ci->name) > pos)
@@ -380,6 +447,9 @@ void __inputPoll() {
 
 
 int main() {
+	#ifdef _WIN32
+		__loadDLL();
+	#endif
     __initAtm();
     __inputPoll();
 

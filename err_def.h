@@ -18,7 +18,7 @@
 #define GEN_ERR(msg)                fprintf(stderr, "%s\nAborting\n", msg), \
                                     exit(EXIT_FAILURE)
 
-#define FILE_ERR(file)              fprintf(stderr, "Failed to open file %s\n", file), \
+#define FILE_ERR(file, func)        fprintf(stderr, "Failed to open file %s in %s\n", file, func), \
                                     exit(EXIT_FAILURE)
 
 #define READ_ERR(file)              fprintf(stderr, "Failed to read from file %s\n", file), \

@@ -51,10 +51,75 @@
     " help -- Usage information about Goldstein Bank ATM\n" \
     " exit -- Exit Goldstein Bank ATM program\n";
 
+    #ifdef _WIN32
+		#include <windows.h>
+		static HINSTANCE __lib_ins = NULL;
+		void __loadDLL();
+
+        // Function pointer declarations
+        void(__stdcall *initConverter)();
+        void(__stdcall* destroyConverter)();
+        void(__stdcall *csv_FetchExRates)(char* ex_file);
+
+        void(__stdcall *csv_ParseCurrencyInfo) (
+            char *csv_file,
+            Hashmap *p_cur_map,
+            char ***p_codes,
+            size_t *p_code_c,
+            char ***p_meta,
+            size_t *p_meta_c
+		);
+
+        void(__stdcall *cash_ParseData) (
+            char *cash_file,
+            Hashmap *p_cm,
+            char ***p_codes,
+            size_t *p_code_c
+		);
+
+        char* (__stdcall* csv_MetaExtractDate) (
+            char **meta,
+            size_t meta_c
+		);
+        
+        void*(__stdcall* findValue) (
+            Hashmap *p_hm,
+            void *key,
+            size_t key_len
+		);
+
+        Hashmap* (__stdcall *getCurrencyMap)();
+
+        void(__stdcall* sprintSafeFloat) (
+            char *fl_format,
+            char *str,
+            SafeFloat sf
+		);
+
+        void(__stdcall* str_ToUpperCase) (
+            char* str,
+            size_t str_len
+		);
+
+        WithdrawReport(__stdcall* convertCurrency) (
+            uint64_t amount,
+            CurrencyInfo *p_src,
+            CurrencyInfo *p_dst,
+            WithdrawMode cm
+		);
+
+        uint64_t(__stdcall* al_pow) (
+            uint64_t base,
+            uint64_t exp
+		);
+
+
+
+    #endif 
     /* 
      * Initialise the atm for usage 
      */
-    void __init();
+    void __initAtm();
 
 
     /* Poll user input */

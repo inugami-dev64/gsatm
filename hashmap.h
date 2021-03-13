@@ -6,6 +6,7 @@
     #include <string.h>
     #include <stdio.h>
     #include <stdint.h>
+	#include "lib_export.h"
 #endif
 
 typedef struct ChainData {
@@ -38,27 +39,28 @@ typedef struct Hashmap {
     void reallocateHashmap(Hashmap *p_hm);
 #endif
 
-void newHashmap (
-    Hashmap *p_hashmap, 
-    size_t n_len
-);
 
-void pushToHashmap (
-    Hashmap *p_hm,
-    void *key,
-    size_t key_size,
-    void *val
-);
+#if !defined(__USER_C) || !defined(_WIN32)
+	void newHashmap (
+		Hashmap *p_hashmap, 
+		size_t n_len
+	);
 
-void *findValue (
-    Hashmap *p_hm, 
-    void *key, 
-    size_t key_len
-);
+	void pushToHashmap (
+		Hashmap *p_hm,
+		void *key,
+		size_t key_size,
+		void *val
+	);
 
+	LIB_EXPORT void* CALL_CON findValue (
+		Hashmap *p_hm, 
+		void *key, 
+		size_t key_len
+	);
 
-void clearHashmap (
-    Hashmap *p_hm        
-);
-
+	void clearHashmap (
+		Hashmap *p_hm        
+	);
+#endif
 #endif

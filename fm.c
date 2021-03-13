@@ -1,6 +1,7 @@
 #define __FM_C
 #include "fm.h"
 
+extern int errno;
 
 /*****************************/
 /***** Private functions *****/
@@ -11,7 +12,7 @@ char *__readFileToBuffer(char *file_name) {
     FILE *file;
     file = fopen(file_name, "rb");
 
-    if(!file) FILE_ERR(file_name);
+    if(!file) FILE_ERR(file_name, "__readFileToBuffer");
     
     fseek(file, 0, SEEK_END);
     long len = ftell(file);
@@ -38,13 +39,14 @@ char *__readFileToBuffer(char *file_name) {
 /***************************************/
 /******** CSV PARSING FUNCTIONS ********/
 /***************************************/
-void csv_FetchExRates(char *out_file) {
+LIB_EXPORT void CALL_CON csv_FetchExRates(char *out_file) {
     // TODO: Fetch information about exchange rates
     CURL *curl;
     FILE *file;
 
     file = fopen(out_file, "wb");
-    if(!file) FILE_ERR(out_file);
+    if(!file)
+        FILE_ERR(out_file, "csv_FetchExRates");
 
     curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, ATM_EX_RATE_DATA_URL);
@@ -56,7 +58,7 @@ void csv_FetchExRates(char *out_file) {
 }
 
 
-void csv_ParseCurrencyInfo (
+LIB_EXPORT void CALL_CON csv_ParseCurrencyInfo (
     char *csv_file,
     Hashmap *p_cur_map,
     char ***p_codes,
@@ -82,7 +84,7 @@ void csv_ParseCurrencyInfo (
         meta_cap,
         sizeof(char*)
     );
-    
+
     // TODO: Extract metadata and currency information from buffer
     char *line_beg = buf, *line_end = buf;
     CurrencyInfo *p_cur;
@@ -213,7 +215,7 @@ void csv_ParseCurrencyInfo (
 }
 
 
-char *csv_MetaExtractDate (
+LIB_EXPORT char* CALL_CON csv_MetaExtractDate (
     char **meta, 
     size_t meta_c
 ) {
@@ -223,6 +225,9 @@ char *csv_MetaExtractDate (
         char *d1, *d2;
         if((d1 = strchr(meta[i], '.')) && (d2 = strchr(d1 + 1, '.'))) {
             bool is_day, is_month, is_year;
+            is_day = false;
+            is_month = false;
+            is_year = false;
             if 
             (
                 d1 - 2 >= meta[i] && 
@@ -270,7 +275,7 @@ char *csv_MetaExtractDate (
 /****************************************/
 /******** CASH LOADER FUNCTIONS *********/
 /****************************************/
-void cash_ParseData (
+LIB_EXPORT void CALL_CON cash_ParseData (
     char *cash_file, 
     Hashmap *p_cm,
     char ***p_codes,

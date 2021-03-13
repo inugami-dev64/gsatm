@@ -1,16 +1,5 @@
 #define __ALGORITHM_C
 #include "algorithm.h"
-uint64_t al_pow(uint64_t base, uint64_t exp) {
-    if(!exp)
-        return 1;
-    else if(exp % 2)
-        return base * al_pow(base, exp - 1);
-    else {
-        uint64_t half = al_pow(base, exp / 2);
-        return half * half;
-    }
-}
-
 
 /*
  * The simplest searching algorithm known to a man
@@ -24,7 +13,7 @@ static size_t __al_linsearch (
     size_t i;
     bool is_found = false;
     for(i = 0; i < n; i++) {
-        if(!memcmp(arr + i * size, cmp, size)) {
+        if(!memcmp((char*) arr + i * size, cmp, size)) {
             is_found = true;
             break;
         }
@@ -160,8 +149,8 @@ uint64_t __al_ChangeFinder (
         return 0;
     }
 
-    uint64_t changes[aprx_val + 1];
-    uint64_t last_notes[aprx_val + 1];
+    uint64_t *changes = (uint64_t) malloc((aprx_val + 1) * sizeof(uint64_t));
+    uint64_t *last_notes = (uint64_t) malloc((aprx_val + 1) * sizeof(uint64_t));
 
     // Zero amount of money always means zero change
     changes[0] = 0;
@@ -208,10 +197,22 @@ uint64_t __al_ChangeFinder (
 }
 
 
+LIB_EXPORT uint64_t CALL_CON al_pow(uint64_t base, uint64_t exp) {
+    if(!exp)
+        return 1;
+    else if(exp % 2)
+        return base * al_pow(base, exp - 1);
+    else {
+        uint64_t half = al_pow(base, exp / 2);
+        return half * half;
+    }
+}
+
+
 /*
  * Wrapper function to sort all banknotes in growing order 
  */
-void al_SortBankNotes(CashStatus *p_cs) {
+LIB_EXPORT void CALL_CON al_SortBankNotes(CashStatus *p_cs) {
     // TODO: Create copy of banknote values
     CashStatus cpy = {0};
     cpy.banknote_c = p_cs->banknote_c;
@@ -257,7 +258,7 @@ void al_SortBankNotes(CashStatus *p_cs) {
 /*
  * Withdraw the maximum aprx_val of cash possible 
  */
-WithdrawReport al_WithdrawMaxBillsC (
+LIB_EXPORT WithdrawReport CALL_CON al_WithdrawMaxBillsC (
     SafeFloat *p_val, 
     CurrencyInfo *p_cur
 ) {
@@ -311,7 +312,7 @@ WithdrawReport al_WithdrawMaxBillsC (
 /*
  * Withdraw as little cash as possible
  */
-WithdrawReport al_WithdrawMinBillsC (
+LIB_EXPORT WithdrawReport CALL_CON al_WithdrawMinBillsC (
     SafeFloat *p_val,
     CurrencyInfo *p_cur
 ) {
@@ -395,7 +396,7 @@ WithdrawReport al_WithdrawMinBillsC (
 /*
  * Withdraw as much different banknotes as possible
  */
-WithdrawReport al_WithdrawDifBillsC (
+LIB_EXPORT WithdrawReport CALL_CON al_WithdrawDifBillsC (
     SafeFloat *p_val,
     CurrencyInfo *p_cur
 ) {

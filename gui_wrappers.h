@@ -9,6 +9,7 @@ typedef uint8_t bool;
 #define true 1
 #define false 0
 
+#include "lib_export.h"
 #include "strparse.h"
 #include "hashmap.h"
 #include "fm.h"

@@ -248,7 +248,7 @@ void pushToHashmap (
 
 
 /* Find value with certain key */
-void *findValue (
+LIB_EXPORT void* CALL_CON findValue (
     Hashmap *p_hm,
     void *key,
     size_t key_len
@@ -264,7 +264,7 @@ void *findValue (
         key_len < p_hm->map_data[index].key_len ?
         !memcmp(p_hm->map_data[index].key, key, key_len) :
         !memcmp(p_hm->map_data[index].key, key, p_hm->map_data[index].key_len)
-    ) return p_hm->map_data[index].data;
+    ) return (char*) p_hm->map_data[index].data;
     
     else {
         // Perform linear search for the key
@@ -277,7 +277,7 @@ void *findValue (
                 key_len < p_hm->map_data[i].key_len ?
                 !memcmp(p_hm->map_data[i].key, key, key_len) :
                 !memcmp(p_hm->map_data[i].key, key, p_hm->map_data[i].key_len)
-            ) return p_hm->map_data[i].data;
+            ) return (char*) p_hm->map_data[i].data;
         }
     }
 

@@ -8,12 +8,16 @@
     #include <stdint.h>
     #include <stdio.h>
     #include <string.h>
-    #include <curl/curl.h>
-
+	#include <errno.h>
+	#ifdef _WIN32
+		#define CURL_STATICLIB
+		#include <curl/curl.h>
+	#endif
     typedef uint8_t bool;
     #define true 1
     #define false 0
 
+	#include "lib_export.h"
     #include "err_def.h"
     #include "hashmap.h"
     #include "strparse.h"
@@ -60,34 +64,38 @@ typedef struct CurrencyInfo {
 /****************************************/
 /****************************************/
 
-/* Get currency exchange rates from Eesti Pank */
-void csv_FetchExRates(char *out_file);
-/* Parse csv currency information and create CurrencyInfo instance for every currency */
-void csv_ParseCurrencyInfo (
-    char* csv_file, 
-    Hashmap *p_cur_map, 
-    char ***p_codes,
-    size_t *p_code_c,
-    char ***p_meta,
-    size_t *p_meta_c
-);
-/* Extract date information from metadata */
-char *csv_MetaExtractDate (
-    char **meta, 
-    size_t meta_c
-);
+#if !defined(__USER_C) || !defined(_WIN32)
+	/* Get currency exchange rates from Eesti Pank */
+	LIB_EXPORT void CALL_CON csv_FetchExRates(char *out_file);
+
+	/* Parse csv currency information and create CurrencyInfo instance for every currency */
+	LIB_EXPORT void CALL_CON csv_ParseCurrencyInfo (
+		char* csv_file, 
+		Hashmap *p_cur_map, 
+		char ***p_codes,
+		size_t *p_code_c,
+		char ***p_meta,
+		size_t *p_meta_c
+	);
+
+	/* Extract date information from metadata */
+	LIB_EXPORT char* CALL_CON csv_MetaExtractDate (
+		char **meta, 
+		size_t meta_c
+	);
 
 
-/**********************************************/
-/**********************************************/
-/******** CASH DATA PARSING FUNCTIONS *********/
-/**********************************************/
-/**********************************************/
-void cash_ParseData (
-    char *cash_file,
-    Hashmap *p_cash_map,
-    char ***p_codes,
-    size_t *p_code_c
-);
+	/**********************************************/
+	/**********************************************/
+	/******** CASH DATA PARSING FUNCTIONS *********/
+	/**********************************************/
+	/**********************************************/
+	LIB_EXPORT void CALL_CON cash_ParseData (
+		char *cash_file,
+		Hashmap *p_cash_map,
+		char ***p_codes,
+		size_t *p_code_c
+	);
+#endif
 
 #endif
