@@ -5,8 +5,8 @@
     #define LIB_EXPORT      __declspec(dllexport)
     #define CALL_CON        __stdcall
 #else 
-    #define LIB_EXPORT
-    #define CALL_CON
+    #define LIB_EXPORT  
+    #define CALL_CON    
 #endif
 
 #endif

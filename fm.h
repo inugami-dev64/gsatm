@@ -11,8 +11,8 @@
 	#include <errno.h>
 	#ifdef _WIN32
 		#define CURL_STATICLIB
-		#include <curl/curl.h>
 	#endif
+    #include <curl/curl.h>
     typedef uint8_t bool;
     #define true 1
     #define false 0

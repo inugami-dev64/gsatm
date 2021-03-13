@@ -16,6 +16,7 @@
     #define true 1
     #define false 0
 
+    #include "lib_export.h"
     #include "err_def.h"
     #include "hashmap.h"
     #include "fm.h"

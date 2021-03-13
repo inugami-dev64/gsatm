@@ -75,4 +75,14 @@ elseif(LINUX)
         ${ATM_CLI_TARGET} 
         PUBLIC libcurl
     )
+
+    file (
+        COPY ${CMAKE_CURRENT_SOURCE_DIR}/cash.info
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Debug
+    )
+
+    file (
+        COPY ${CMAKE_CURRENT_SOURCE_DIR}/cash.info
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Release
+    )
 endif()

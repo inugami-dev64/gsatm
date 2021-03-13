@@ -149,8 +149,8 @@ uint64_t __al_ChangeFinder (
         return 0;
     }
 
-    uint64_t *changes = (uint64_t) malloc((aprx_val + 1) * sizeof(uint64_t));
-    uint64_t *last_notes = (uint64_t) malloc((aprx_val + 1) * sizeof(uint64_t));
+    uint64_t *changes = (uint64_t*) malloc((aprx_val + 1) * sizeof(uint64_t));
+    uint64_t *last_notes = (uint64_t*) malloc((aprx_val + 1) * sizeof(uint64_t));
 
     // Zero amount of money always means zero change
     changes[0] = 0;
