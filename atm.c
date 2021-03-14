@@ -7,7 +7,7 @@ static size_t rt_code_c = 0;
 static char **ld_codes = NULL;
 static size_t ld_code_c = 0;
 
-
+static bool __is_min = false;
 
 #ifdef _WIN32
 	/*
@@ -23,7 +23,7 @@ static size_t ld_code_c = 0;
         // Load all library functions that are used
         initConverter = (void(__stdcall*)())GetProcAddress(__lib_ins, "initConverter");
         destroyConverter = (void(__stdcall*)())GetProcAddress(__lib_ins, "destroyConverter");
-        csv_FetchExRates = (void(__stdcall*)(char*))GetProcAddress(__lib_ins, "csv_FetchExRates");
+        csv_FetchExRates = (void(__stdcall*)(char*, bool))GetProcAddress(__lib_ins, "csv_FetchExRates");
 
         csv_ParseCurrencyInfo = (void(__stdcall*)(char*, Hashmap*, char***, size_t*, char***, size_t*)) GetProcAddress(
             __lib_ins,
@@ -75,8 +75,9 @@ static size_t ld_code_c = 0;
 
 void __initAtm() {
     initConverter();
-    printf("Welcome to Goldstein Bank ATM!\n");
-    csv_FetchExRates(ATM_EX_RATES_FILE);
+    if(!__is_min)
+        printf("Welcome to Goldstein Bank ATM!\n");
+    csv_FetchExRates(ATM_EX_RATES_FILE, __is_min);
 
 
     char **meta = NULL;
@@ -101,7 +102,8 @@ void __initAtm() {
     );
 
     char *date = csv_MetaExtractDate(meta, meta_c);
-    printf("Recieved exchange rates from: %s\n", date);
+    if(!__is_min)
+        printf("Recieved exchange rates from: %s\n", date);
 
     // TODO: Free memory for meta data 
     for(size_t i = 0; i < meta_c; i++) {
@@ -406,7 +408,9 @@ void __inputPoll() {
     // TODO: Poll input from end user
     while(true) {
         memset(buf, 0, 2048);
-        printf("ATM> ");
+        if(!__is_min)
+            printf("ATM> ");
+        
         fflush(stdin);
         char *tmp = fgets(buf, 2048, stdin);
         if(!tmp) GEN_ERR("Failed to read user input");
@@ -446,8 +450,12 @@ void __inputPoll() {
 }
 
 
-int main() {
-	#ifdef _WIN32
+int main(int argc, char *argv[]) {
+    if (argc == 2 && !strcmp(argv[1], "basic"))
+        __is_min = true;
+    else __is_min = false;
+
+    #ifdef _WIN32
 		__loadDLL();
 	#endif
     __initAtm();

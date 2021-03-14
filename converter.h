@@ -6,6 +6,11 @@
     #include <string.h>
     #include <stdio.h>
     #include <stdint.h>
+
+    typedef uint8_t bool;
+    #define true 1
+    #define false 0
+
     #include "lib_export.h"
     #include "err_def.h"
     #include "hashmap.h"

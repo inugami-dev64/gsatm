@@ -7,14 +7,15 @@
     #include <stdint.h>
     #include <stdio.h>
     #include <limits.h>
-    #include "lib_export.h"
-    #include "hashmap.h"
-    #include "lib_export.h"
-    #include "fm.h"
 
     typedef uint8_t bool;
     #define true 1
     #define false 0
+
+    #include "lib_export.h"
+    #include "hashmap.h"
+    #include "lib_export.h"
+    #include "fm.h"
    
     /*
      * Maximum change making sum after dividing sum with 10 ^ n, where

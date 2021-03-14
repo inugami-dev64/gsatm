@@ -15,9 +15,9 @@ static char **__ld_codes = NULL;
 static size_t __ld_code_c = 0;
 
 /* Atm instance initialiser */
-void atm_Init() {
+LIB_EXPORT void CALL_CON atm_Init() {
     initConverter();
-    csv_FetchExRates(ATM_EX_RATES_FILE);
+    csv_FetchExRates(ATM_EX_RATES_FILE, false);
 
     // Parse currency information fetched from Eesti Pank
     csv_ParseCurrencyInfo (
@@ -40,7 +40,7 @@ void atm_Init() {
 
 
 /* Atm instance cleanup */
-void atm_Cleanup() {
+LIB_EXPORT void CALL_CON atm_Cleanup() {
     CurrencyInfo *p_ci = NULL;
     for(size_t i = 0; i < __ld_code_c; i++) {
         p_ci = findValue (
@@ -65,14 +65,16 @@ void atm_Cleanup() {
 
 
 /* Extract date from metadata */
-char *atm_GetExRateDate() {
+LIB_EXPORT char* CALL_CON atm_GetExRateDate() {
+    printf("test\n");
     char *date = csv_MetaExtractDate(__meta, __meta_c);
+    printf("test\n");
     return date;
 }
 
 
 /* Convert currency from src to dst */
-WithdrawReport atm_WithdrawCurrency (
+LIB_EXPORT WithdrawReport CALL_CON atm_WithdrawCurrency (
     uint64_t amount, 
     char *src, 
     char *dst, 
@@ -123,7 +125,7 @@ WithdrawReport atm_WithdrawCurrency (
 
 
 /* Get information about certain currency (exchange rate and cash status) */
-CurrencyInfo atm_GetCurrencyInfo(char *code) {
+LIB_EXPORT CurrencyInfo CALL_CON atm_GetCurrencyInfo(char *code) {
     CurrencyInfo *p_ci;
     str_ToUpperCase(code, strlen(code));
 
@@ -138,13 +140,14 @@ CurrencyInfo atm_GetCurrencyInfo(char *code) {
 
 
 /* Convert from SafeFloat to regular IEEE754 float */
-float atm_SafeFloatToFloat(SafeFloat sf) {
+LIB_EXPORT float CALL_CON atm_SafeFloatToFloat(SafeFloat sf) {
     char buf[64] = {0};
     sprintSafeFloat (
         NULL, 
         buf,
         sf
     );
+    printf("%s, %f\n", buf, atof(buf));
 
     return atof(buf);
 }

@@ -1,5 +1,9 @@
 # Goldstein Bank ATM  
 ## Getting started
+### Additional CMake flags
+For C# test program build set the values of following variables to `True`:  
+`-DGSASTM_BUILD_GUI` and `-DGSATM_GUI_CODE_TEST`
+
 ### Windows
 Prerequisites:  
 * CMake  
@@ -33,6 +37,3 @@ cd build
 cmake ..
 make
 ```
-
-## Troubleshooting
-When starting the program it  

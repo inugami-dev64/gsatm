@@ -60,7 +60,7 @@
         // Function pointer declarations
         void(__stdcall *initConverter)();
         void(__stdcall* destroyConverter)();
-        void(__stdcall *csv_FetchExRates)(char* ex_file);
+        void(__stdcall *csv_FetchExRates)(char* ex_file, bool is_min);
 
         void(__stdcall *csv_ParseCurrencyInfo) (
             char *csv_file,

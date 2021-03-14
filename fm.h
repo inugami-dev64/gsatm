@@ -13,6 +13,7 @@
 		#define CURL_STATICLIB
 	#endif
     #include <curl/curl.h>
+
     typedef uint8_t bool;
     #define true 1
     #define false 0
@@ -66,7 +67,7 @@ typedef struct CurrencyInfo {
 
 #if !defined(__USER_C) || !defined(_WIN32)
 	/* Get currency exchange rates from Eesti Pank */
-	LIB_EXPORT void CALL_CON csv_FetchExRates(char *out_file);
+	LIB_EXPORT void CALL_CON csv_FetchExRates(char *out_file, bool is_min);
 
 	/* Parse csv currency information and create CurrencyInfo instance for every currency */
 	LIB_EXPORT void CALL_CON csv_ParseCurrencyInfo (

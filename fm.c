@@ -39,7 +39,7 @@ char *__readFileToBuffer(char *file_name) {
 /***************************************/
 /******** CSV PARSING FUNCTIONS ********/
 /***************************************/
-LIB_EXPORT void CALL_CON csv_FetchExRates(char *out_file) {
+LIB_EXPORT void CALL_CON csv_FetchExRates(char *out_file, bool is_min) {
     // TODO: Fetch information about exchange rates
     CURL *curl;
     FILE *file;
@@ -51,7 +51,9 @@ LIB_EXPORT void CALL_CON csv_FetchExRates(char *out_file) {
     curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, ATM_EX_RATE_DATA_URL);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
-    printf("Fetching currency exchange rates...\n");
+    
+    if(!is_min)
+        printf("Fetching currency exchange rates...\n");
 
     curl_easy_perform(curl);
     fclose(file);

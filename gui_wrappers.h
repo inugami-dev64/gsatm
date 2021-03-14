@@ -18,26 +18,26 @@ typedef uint8_t bool;
 
 #define ATM_EX_RATES_FILE           "ex_rates.csv"
 #define ATM_CASH_INFO_FILE          "cash.info"
-
+#define ATM_CASH_HANDLING_LIMIT     10000000000
 
 /*
  * Initialise new atm instance 
  * This function fetches currency data from Eesti Pank and reads cash information
  * from file cash.info
  */
-void atm_Init();
+LIB_EXPORT void CALL_CON atm_Init();
 
 
 /*
  * Perform final cleanup for the atm program
  */
-void atm_Cleanup();
+LIB_EXPORT void CALL_CON atm_Cleanup();
 
 
 /*
  * Get information about the date exchange info is from
  */
-char *atm_GetExRateDate();
+LIB_EXPORT char* CALL_CON atm_GetExRateDate();
 
 
 /*
@@ -46,7 +46,7 @@ char *atm_GetExRateDate();
  * "max", "min", "dif" (case insensitive) to withdraw maximum amount, 
  * minumum amount and the most amount of different banknotes respectively
  */
-WithdrawReport atm_WithdrawCurrency (
+LIB_EXPORT WithdrawReport CALL_CON atm_WithdrawCurrency (
     uint64_t amount, 
     char *src, 
     char *dst,
@@ -59,14 +59,12 @@ WithdrawReport atm_WithdrawCurrency (
  * Currency code is case insensitive
  * If error occurs currencyinfo parameters value will be null;
  */
-CurrencyInfo atm_GetCurrencyInfo(char *code);
+LIB_EXPORT CurrencyInfo CALL_CON atm_GetCurrencyInfo(char *code);
 
 
 /*
  * Convert from SafeFloat to regular IEEE754 float
  */
-float atm_SafeFloatToFloat(SafeFloat sf);
-
-
+LIB_EXPORT float CALL_CON atm_SafeFloatToFloat(SafeFloat sf);
 
 #endif

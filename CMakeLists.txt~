@@ -21,7 +21,7 @@ set (
 
 set (
     ATM_GUI_SOURCES
-    gui/process_test.cs
+    gui/test.cs
 )
 
 
