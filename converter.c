@@ -54,11 +54,19 @@ LIB_EXPORT void CALL_CON sprintSafeFloat (
         }
     }
 
-    sprintf (
-        str,
-        "%lld",
-        sf.mantissa
-    );
+    #if defined(_WIN32)
+        sprintf (
+            str,
+            "%lld",
+            sf.mantissa
+        );
+    #elif defined(__linux__)
+        sprintf (
+            str,
+            "%ld",
+            sf.mantissa
+        );
+    #endif
 
     // Negative value exponant
     char *ptr;

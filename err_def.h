@@ -5,8 +5,14 @@
 #define REALLOC_ERR(purpose)        fprintf(stderr, "Failed to reallocate memory for %s\n", purpose), \
                                     exit(EXIT_FAILURE)
 
-#define PARSE_ERR(file, line)       fprintf(stderr, "Parsing error in file %s on line %lld\n", file, line), \
-                                    exit(EXIT_FAILURE)
+#ifdef __linux__ 
+    #define PARSE_ERR(file, line)       fprintf(stderr, "Parsing error in file %s on line %ld\n", file, line), \
+                                        exit(EXIT_FAILURE)
+#endif
+#ifdef _WIN32
+    #define PARSE_ERR(file, line)       fprintf(stderr, "Parsing error in file %s on line %lld\n", file, line), \
+                                        exit(EXIT_FAILURE)
+#endif 
 
 #define CMD_ERR_MSG(cmd)            fprintf(stderr, "Unknown command %s\n", cmd)
 #define MEM_CORRUPTION(fail_msg)    fprintf(stderr, "%s\nOut of memory, possible data corruption\n", fail_msg), \
