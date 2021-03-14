@@ -10,6 +10,14 @@ static size_t ld_code_c = 0;
 static bool __is_min = false;
 
 #ifdef _WIN32
+    /*
+     * Set the console std handle for colorful text
+     */
+    void __setStdHandle() {
+        __std_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    }
+
+
 	/*
 	 * Load DLL and all pointers to functions that are used
 	 */
@@ -75,8 +83,21 @@ static bool __is_min = false;
 
 void __initAtm() {
     initConverter();
-    if(!__is_min)
-        printf("Welcome to Goldstein Bank ATM!\n");
+    if(!__is_min) {
+        const char *welcome_msg = "Welcome to Goldstein Bank ATM!";
+        #if defined(COLORISE) && defined(__linux__)
+            printf (
+                "%s%s%s\n", 
+                WELCOME_COLOR, 
+                welcome_msg, 
+                COLOR_CLEAR
+            );
+        #elif defined(COLORISE) && defined(_WIN32)
+            SetConsoleTextAttribute(__std_handle, WELCOME_COLOR);
+            printf("%s\n", welcome_msg);
+            SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
+        #endif
+    }
     csv_FetchExRates(ATM_EX_RATES_FILE, __is_min);
 
 
@@ -241,13 +262,52 @@ void __listRates() {
             pos 
         );
 
-        printf (
-            "%s%s%s\t%s\n",
-            name,
-            pad,
-            p_ci->code,
-            rate
-        );
+        if(!__is_min) {
+            #if defined(COLORISE) && defined(__linux__)
+                printf (
+                    "%s%s%s%s%s\t%s\n",
+                    name,
+                    pad,
+                    CURRENCY_COLOR,
+                    p_ci->code,
+                    COLOR_CLEAR,
+                    rate
+                );
+            #elif defined(COLORISE) && defined(_WIN32)
+                printf (
+                    "%s%s",
+                    name,
+                    pad
+                );
+                SetConsoleTextAttribute(__std_handle, CURRENCY_COLOR);
+                printf (
+                    "%s",
+                    p_ci->code,
+                );
+                SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
+                printf (
+                    "\t%s\n",
+                    rate
+                );
+            #else
+                printf (
+                    "%s%s%s\t%s\n",
+                    name,
+                    pad,
+                    p_ci->code,
+                    rate
+                );
+            #endif
+        }
+        else {
+            printf (
+                "%s%s%s\t%s\n",
+                name,
+                pad,
+                p_ci->code,
+                rate
+            );
+        }
     }
 }
 
@@ -277,12 +337,46 @@ void __listStatus() {
             p_ci->name, 
             tab_c
         );
-        printf (
-            "%s%s%s\t", 
-            p_ci->name, 
-            pad, 
-            p_ci->code
-        );
+        if(!__is_min) {
+            #if defined(COLORISE) && defined(__linux__)
+                printf (
+                    "%s%s%s%s%s\t", 
+                    p_ci->name, 
+                    pad, 
+                    CURRENCY_COLOR,
+                    p_ci->code,
+                    COLOR_CLEAR
+                );
+            #elif defined(COLORISE) && defined(_WIN32)
+                printf (
+                    "%s%s",
+                    p_ci->name,
+                    pad
+                );
+                SetConsoleTextAttribute(__std_handle, CURRENCY_COLOR);
+                printf (
+                    "%s\t",
+                    p_ci->code
+                );
+                SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
+            #else 
+                printf (
+                    "%s%s%s\t", 
+                    p_ci->name,
+                    pad,
+                    p_ci->code
+                );
+            #endif
+        }
+        else {
+            printf (
+                "%s%s%s\t", 
+                p_ci->name,
+                pad,
+                p_ci->code
+            );
+        }
+
         for(size_t j = 0; j < p_ci->cs.banknote_c; j++)
             printf("%ld - %ld; ", p_ci->cs.banknote_vals[j], p_ci->cs.val_c[j]);        
 
@@ -291,6 +385,7 @@ void __listStatus() {
 }
 
 
+/* Cli wrapper for currency conversion */
 void __convertCurrency (
     char **params,
     size_t param_c
@@ -307,14 +402,6 @@ void __convertCurrency (
     else cm = ATM_CONVERSION_MODE_MIN;
 
     uint64_t amount = atol(params[1]);
-    if(amount > ATM_CASH_HANDLING_LIMIT) {
-        printf (
-            "%ld is over the withdrawal limit of %ld\n",
-            amount,
-            ATM_CASH_HANDLING_LIMIT
-        );  
-        return;
-    }
     str_ToUpperCase(params[2], strlen(params[2]));
     str_ToUpperCase(params[4], strlen(params[4]));
 
@@ -325,29 +412,11 @@ void __convertCurrency (
         3
     );
 
-    if(!p_src) {
-        fprintf (
-            stderr,
-            "Invalid source currency code '%s'\n",
-            params[2]
-        );
-        return;
-    }
-
     CurrencyInfo *p_dst = (CurrencyInfo*) findValue (
         hashm,
         params[4],
         3
     );
-
-    if(!p_dst) {
-        fprintf (
-            stderr,
-            "Invalid destination currency code '%s'\n",
-            params[4]
-        );
-        return;
-    }
 
     WithdrawReport wr = convertCurrency (
         amount,
@@ -356,18 +425,105 @@ void __convertCurrency (
         cm
     );
 
+
+    // Error code handling
+    bool is_err = false;
+    char *msg = NULL;
+    switch(wr.error_code)
+    {
+    case WDR_ERR_NOT_ENOUGH_CASH:
+        msg = "Not enough cash to withdraw from atm";
+        is_err = true;
+        break;
+
+    case WDR_ERR_CASH_HANDLING_LIMIT_REACHED:
+        msg = "You are trying to withdraw more cash than allowed";
+        is_err = true;
+        break;
+
+    case WDR_ERR_INVALID_SRC_CURRENCY_CODE:
+        msg = "Invalid source currency code";
+        is_err = true;
+        break;
+
+    case WDR_ERR_INVALID_DST_CURRENCY_CODE:
+        msg = "Invalid destination currency code";
+        is_err = true;
+        break;
+
+    default:
+        break;
+    }
+
+    if(is_err && !__is_min) {
+        #if defined(COLORISE) && defined(__linux__)
+            fprintf (
+                stderr, 
+                "%s%s%s\n",
+                ERR_COLOR,
+                msg,
+                COLOR_CLEAR
+            );
+        #elif defined(COLORISE) && defined(_WIN32)
+            SetConsoleTextAttribute(__std_handle, ERR_COLOR);
+            fprintf (
+                stderr,
+                "%s\n"
+                msg
+            );
+            SetConsoleTextAttribute(__std_hanlde, COLOR_CLEAR);
+        #else 
+            fprintf(stderr, "%s\n", msg);
+        #endif
+    }
+    else if(is_err) fprintf(stderr, "%s\n", msg);
+
     if(!wr.cs.banknote_c)
         return;
 
     printf("Money withdrawal report\nRecieved bills | Quantity\n");
     for(size_t i = 0; i < wr.cs.banknote_c; i++) {
-        if(wr.cs.banknote_vals[i] && wr.cs.val_c[i])
-            printf (
-                "%ld %s | %ld\n", 
-                wr.cs.banknote_vals[i], 
-                p_dst->code,
-                wr.cs.val_c[i]
-            );
+        if(wr.cs.banknote_vals[i] && wr.cs.val_c[i]) {
+            if(!__is_min) {
+                #if defined(COLORISE) && defined(__linux__)
+                    printf (
+                        "%s%ld%s %s%s%s | %ld\n", 
+                        WITHDRAW_COLOR,
+                        wr.cs.banknote_vals[i], 
+                        COLOR_CLEAR,
+                        CURRENCY_COLOR,
+                        p_dst->code,
+                        COLOR_CLEAR,
+                        wr.cs.val_c[i]
+                    );
+                #elif defined(COLORISE) && defined(_WIN32)
+                    SetConsoleTextAttribute(__std_handle, WITHDRAW_COLOR);
+                    printf("%ld", wr.cs.banknote_vals[i]);
+                    SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
+                    printf(" ");
+                    SetConsoleTextAttribute(__std_handle, CURRENCY_COLOR);
+                    printf("%s", p_dst->code);
+                    SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
+                    printf(" | %ld\n", wr.cs.val_c[i]);
+                #else 
+                    printf (
+                        "%ld %s | %ld\n", 
+                        wr.cs.banknote_vals[i], 
+                        p_dst->code,
+                        wr.cs.val_c[i]
+                    );
+                #endif
+            }
+
+            else {
+                printf (
+                    "%ld %s | %ld\n", 
+                    wr.cs.banknote_vals[i], 
+                    p_dst->code,
+                    wr.cs.val_c[i]
+                );
+            }
+        }
     }
 
 
@@ -408,10 +564,20 @@ void __inputPoll() {
     // TODO: Poll input from end user
     while(true) {
         memset(buf, 0, 2048);
-        if(!__is_min)
-            printf("ATM> ");
+        if(!__is_min) {
+            const char *msg = "ATM> ";
+            #if defined(COLORISE) && defined(__linux__)
+                printf("%s%s%s", INPUT_POINT_COLOR, msg, COLOR_CLEAR);
+            #elif defined(COLORISE) && defined(_WIN32)
+                SetConsoleTextAttribute(__std_handle, INPUT_POINT_COLOR);
+                printf("%s", msg);
+                SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
+            #else
+                printf("%s", msg);
+            #endif
+            fflush(stdin);
+        }
         
-        fflush(stdin);
         char *tmp = fgets(buf, 2048, stdin);
         if(!tmp) GEN_ERR("Failed to read user input");
         
@@ -455,9 +621,12 @@ int main(int argc, char *argv[]) {
         __is_min = true;
     else __is_min = false;
 
+    // WIN32 exclusive function calls
     #ifdef _WIN32
+        __setStdHandle();
 		__loadDLL();
 	#endif
+
     __initAtm();
     __inputPoll();
 

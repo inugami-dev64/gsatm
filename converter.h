@@ -16,6 +16,7 @@
     #include "hashmap.h"
     #include "fm.h"
     #include "algorithm.h"
+    #define ATM_CASH_HANDLING_LIMIT     10000000000
     #define ATM_MIN_WITHDRAWAL_CASH     90 // % of cash available in atm
     #define ARR_LEN(x) sizeof(x) / sizeof(x[0])
 

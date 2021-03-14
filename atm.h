@@ -3,7 +3,6 @@
 
 #define ATM_EX_RATES_FILE           "ex_rates.csv"
 #define ATM_CASH_INFO_FILE          "cash.info"
-#define ATM_CASH_HANDLING_LIMIT     10000000000
 
 #ifdef __USER_C
     #include <stdio.h>
@@ -17,6 +16,7 @@
     #define false 0
 
     #include "lib_export.h"
+    #include "colors.h"
     #include "err_def.h"
     #include "hashmap.h"
     #include "fm.h"
@@ -42,13 +42,13 @@
     char *main_help_c =
     "List of available commands: \n\n" \
     " list\n" \
-    "  -- rates -- List current currency rates\n" \
-    "  -- status -- List current ATM cash status\n" \
+    "     rates -- List current currency rates\n" \
+    "     status -- List current ATM cash status\n" \
     " convert [SUM] [CUR1] to [CUR2] -- Convert SUM of CUR1 currency to CUR2 currency\n" \
-    "  -- max -- Convert using largest banknotes\n" \
-    "  -- min -- Convert using smallest banknotes\n" \
-    "  -- dif -- Convert using most different banknotes\n" \
-    "  -- [NONE] -- Default conversion, using banknotes optimally\n" \
+    "     max -- Convert using largest banknotes\n" \
+    "     min -- Convert using smallest banknotes\n" \
+    "     dif -- Convert using most different banknotes\n" \
+    "     [NONE] -- Default conversion, using banknotes optimally\n" \
     " help -- Usage information about Goldstein Bank ATM\n" \
     " exit -- Exit Goldstein Bank ATM program\n";
 
@@ -113,10 +113,13 @@
             uint64_t base,
             uint64_t exp
 		);
-
-
-
     #endif 
+
+    #ifdef _WIN32
+        static HANDLE __std_handle;
+        void __setStdHandle();
+    #endif
+
     /* 
      * Initialise the atm for usage 
      */

@@ -86,7 +86,7 @@ elseif(UNIX)
 
     target_link_libraries (
         ${ATM_CLI_TARGET} 
-        PUBLIC libcurl
+        PUBLIC curl
     )
 
     file (
