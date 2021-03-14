@@ -1,9 +1,26 @@
-Rem %1 is the version of visual studio and %2 is the build directory used by cmake
-cd submodules\curl\winbuild
-call \..\buildconf.bat
-set RTLIBCFG=static
-nmake /f Makefile.vc mode=static vc=%1 debug=no
-mkdir ..\..\..\%2\curl
-move ..\builds\libcurl-vc%1-x64-release-static-ipv6-sspi-schannel\lib\libcurl_a.lib ..\..\..\%2\curl\libcurl_a.lib
-xcopy /e /i ..\builds\libcurl-vc%1-x64-release-static-ipv6-sspi-schannel\include ..\..\..\%2\curl\include\*
-cd ..\..\..\%2
+@echo off
+Rem *******************************
+Rem ********* Autostart ***********
+Rem *******************************
+Rem %1 is either visual studio version or clean keyword
+
+if NOT "%1"=="clean" (
+    cd submodules\curl\winbuild > nul
+    call ..\buildconf.bat > nul
+    set RTLIBCFG=static > nul
+    echo Building libcurl...
+    nmake /f Makefile.vc mode=static vc=%1 debug=no > nul
+
+    Rem Check if build directory exists 
+    if not exist ..\..\..\build\ (mkdir ..\..\..\build)
+    if not exist ..\..\..\build\curl (mkdir ..\..\..\build\curl)
+    move /y ..\builds\libcurl-vc%1-x64-release-static-ipv6-sspi-schannel\lib\libcurl_a.lib ..\..\..\build\curl\libcurl_a.lib
+    xcopy /e /y /i ..\builds\libcurl-vc%1-x64-release-static-ipv6-sspi-schannel\include ..\..\..\build\curl\include\*
+    cd ..\..\..\
+) else (
+    echo Cleaning all build configs...
+    rmdir /s /q build > nul
+    rmdir /s /q submodules\curl\builds > nul
+)
+
+echo Done

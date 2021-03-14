@@ -7,7 +7,7 @@ static size_t rt_code_c = 0;
 static char **ld_codes = NULL;
 static size_t ld_code_c = 0;
 
-static bool __is_min = false;
+static bool __is_basic = false;
 
 #ifdef _WIN32
     /*
@@ -83,7 +83,7 @@ static bool __is_min = false;
 
 void __initAtm() {
     initConverter();
-    if(!__is_min) {
+    if(!__is_basic) {
         const char *welcome_msg = "Welcome to Goldstein Bank ATM!";
         #if defined(COLORISE) && defined(__linux__)
             printf (
@@ -98,7 +98,7 @@ void __initAtm() {
             SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
         #endif
     }
-    csv_FetchExRates(ATM_EX_RATES_FILE, __is_min);
+    csv_FetchExRates(ATM_EX_RATES_FILE, __is_basic);
 
 
     char **meta = NULL;
@@ -123,7 +123,7 @@ void __initAtm() {
     );
 
     char *date = csv_MetaExtractDate(meta, meta_c);
-    if(!__is_min)
+    if(!__is_basic)
         printf("Recieved exchange rates from: %s\n", date);
 
     // TODO: Free memory for meta data 
@@ -240,7 +240,9 @@ char *__getTextPadding(char *text, size_t req_sp) {
 
 void __listRates() {
     // TODO: Find correct tab count to display assuming that tab spacing is 4 spaces
-    printf("Currency name | ISO4217 code | Exchange rate to Euros\n");
+    if(!__is_basic)
+		printf("Currency name | ISO4217 code | Exchange rate to Euros\n");
+
     size_t pos = __getReqSpaceIndent (
         getCurrencyMap(), 
         __ATM_INDENT_SPACE_C, 
@@ -262,7 +264,7 @@ void __listRates() {
             pos 
         );
 
-        if(!__is_min) {
+        if(!__is_basic) {
             #if defined(COLORISE) && defined(__linux__)
                 printf (
                     "%s%s%s%s%s\t%s\n",
@@ -282,7 +284,7 @@ void __listRates() {
                 SetConsoleTextAttribute(__std_handle, CURRENCY_COLOR);
                 printf (
                     "%s",
-                    p_ci->code,
+                    p_ci->code
                 );
                 SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
                 printf (
@@ -301,9 +303,8 @@ void __listRates() {
         }
         else {
             printf (
-                "%s%s%s\t%s\n",
+                "\"%s\" %s %s\n",
                 name,
-                pad,
                 p_ci->code,
                 rate
             );
@@ -322,7 +323,9 @@ void __listStatus() {
 
     char *pad;
     CurrencyInfo *p_ci;
-    printf("Currency name | ISO4217 code | Banknote avilability ([VALUE] - [AMOUNT])\n");
+    if(!__is_basic)
+		printf("Currency name | ISO4217 code | Banknote avilability ([VALUE] - [AMOUNT])\n");
+
     for(size_t i = 0; i < ld_code_c; i++) {
         p_ci = findValue (
             getCurrencyMap(),
@@ -337,7 +340,7 @@ void __listStatus() {
             p_ci->name, 
             tab_c
         );
-        if(!__is_min) {
+        if(!__is_basic) {
             #if defined(COLORISE) && defined(__linux__)
                 printf (
                     "%s%s%s%s%s\t", 
@@ -355,10 +358,11 @@ void __listStatus() {
                 );
                 SetConsoleTextAttribute(__std_handle, CURRENCY_COLOR);
                 printf (
-                    "%s\t",
+                    "%s",
                     p_ci->code
                 );
                 SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
+                printf("\t");
             #else 
                 printf (
                     "%s%s%s\t", 
@@ -370,9 +374,8 @@ void __listStatus() {
         }
         else {
             printf (
-                "%s%s%s\t", 
+                "\"%s\" %s ", 
                 p_ci->name,
-                pad,
                 p_ci->code
             );
         }
@@ -390,13 +393,14 @@ void __convertCurrency (
     char **params,
     size_t param_c
 ) {
-    WithdrawMode cm;
+    WithdrawMode cm = ATM_CONVERSION_MODE_MIN;
     if(param_c == 6) {
-        if(!strcmp(params[5], "max"))
+		str_ToUpperCase(params[5], strlen(params[5]));
+        if(!strcmp(params[5], "MAX"))
             cm = ATM_CONVERSION_MODE_MAX;
-        else if(!strcmp(params[5], "min"))
+        else if(!strcmp(params[5], "MIN"))
             cm = ATM_CONVERSION_MODE_MIN;
-        else if(!strcmp(params[5], "dif"))
+        else if(!strcmp(params[5], "DIF"))
             cm = ATM_CONVERSION_MODE_ALL_BILLS;
     }
     else cm = ATM_CONVERSION_MODE_MIN;
@@ -455,7 +459,7 @@ void __convertCurrency (
         break;
     }
 
-    if(is_err && !__is_min) {
+    if(is_err && !__is_basic) {
         #if defined(COLORISE) && defined(__linux__)
             fprintf (
                 stderr, 
@@ -468,23 +472,24 @@ void __convertCurrency (
             SetConsoleTextAttribute(__std_handle, ERR_COLOR);
             fprintf (
                 stderr,
-                "%s\n"
+                "%s\n",
                 msg
             );
-            SetConsoleTextAttribute(__std_hanlde, COLOR_CLEAR);
+            SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
         #else 
             fprintf(stderr, "%s\n", msg);
         #endif
+
     }
     else if(is_err) fprintf(stderr, "%s\n", msg);
 
-    if(!wr.cs.banknote_c)
-        return;
+    // Print money withdrawal information 
+    if(!__is_basic)
+		printf("Money withdrawal report\nRecieved bills | Quantity\n");
 
-    printf("Money withdrawal report\nRecieved bills | Quantity\n");
     for(size_t i = 0; i < wr.cs.banknote_c; i++) {
         if(wr.cs.banknote_vals[i] && wr.cs.val_c[i]) {
-            if(!__is_min) {
+            if(!__is_basic) {
                 #if defined(COLORISE) && defined(__linux__)
                     printf (
                         "%s%ld%s %s%s%s | %ld\n", 
@@ -517,7 +522,7 @@ void __convertCurrency (
 
             else {
                 printf (
-                    "%ld %s | %ld\n", 
+                    "%ld %s %ld\n", 
                     wr.cs.banknote_vals[i], 
                     p_dst->code,
                     wr.cs.val_c[i]
@@ -542,13 +547,24 @@ void __convertCurrency (
     char dst_unex[64] = {0};
     sprintSafeFloat("%.4f", dst_unex, wr.unexchanged);
     sprintSafeFloat("%.4f", src_unex, src_unex_fl);
-    printf (
-        "Unexchanged money: %s %s / %s %s\n", 
-        dst_unex, 
-        p_dst->code,
-        src_unex,
-        p_src->code
-    );
+    if (!__is_basic) {
+        printf (
+            "Unexchanged money: %s %s / %s %s\n",
+            dst_unex,
+            p_dst->code,
+            src_unex,
+            p_src->code
+        );
+    }
+    else {
+        printf (
+            "REM: %s %s / %s %s\n",
+            dst_unex,
+            p_dst->code,
+            src_unex,
+            p_src->code
+        );
+    }
 
     // Cleanup WithdrawReport
     free(wr.cs.banknote_vals);
@@ -564,7 +580,7 @@ void __inputPoll() {
     // TODO: Poll input from end user
     while(true) {
         memset(buf, 0, 2048);
-        if(!__is_min) {
+        if(!__is_basic) {
             const char *msg = "ATM> ";
             #if defined(COLORISE) && defined(__linux__)
                 printf("%s%s%s", INPUT_POINT_COLOR, msg, COLOR_CLEAR);
@@ -612,14 +628,17 @@ void __inputPoll() {
             __ATM_UNKNOWN_COMMAND(buf);
             break;
         }
+
+        if (__is_basic)
+            return;
     }
 }
 
 
 int main(int argc, char *argv[]) {
     if (argc == 2 && !strcmp(argv[1], "basic"))
-        __is_min = true;
-    else __is_min = false;
+        __is_basic = true;
+    else __is_basic = false;
 
     // WIN32 exclusive function calls
     #ifdef _WIN32

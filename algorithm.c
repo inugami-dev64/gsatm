@@ -412,8 +412,10 @@ LIB_EXPORT WithdrawReport CALL_CON al_WithdrawDifBillsC (
     );
 
     uint64_t min_note = p_cur->cs.banknote_vals[0];
-    for(uint64_t i = 0; i < p_cur->cs.banknote_c && !p_cur->cs.val_c[i]; i++)
-        min_note = p_cur->cs.banknote_vals[i];
+    uint64_t bn_offset = 0;
+    for(bn_offset = 0; bn_offset < p_cur->cs.banknote_c && !p_cur->cs.val_c[bn_offset]; bn_offset++)
+        min_note = p_cur->cs.banknote_vals[bn_offset];
+    uint64_t unpow_min_note = min_note;
     
     min_note *= al_pow(10, abs(p_val->val_exp));
     uint64_t unex_mantissa = p_val->mantissa % min_note;
@@ -422,26 +424,31 @@ LIB_EXPORT WithdrawReport CALL_CON al_WithdrawDifBillsC (
         aprx_val /= 10;
 
     uint64_t j = 0;
+
     // Start looking from smallest bills to the biggest ones.
-    while(aprx_val >= p_cur->cs.banknote_vals[0]) {
+    bool is_exit = true;
+    while(aprx_val >= unpow_min_note) {
+		is_exit = true;
         for(uint64_t i = 0; i < p_cur->cs.banknote_c; i++) {
             if(p_cur->cs.val_c[i] && aprx_val >= p_cur->cs.banknote_vals[i]) {
-                if(j <= i) {
+                if(j <= i - bn_offset) {
                     wr.cs.banknote_vals[j] = p_cur->cs.banknote_vals[i];
                     wr.cs.banknote_c++;
                     j++;
                 }
 
-                wr.cs.val_c[i]++;
+                wr.cs.val_c[i - bn_offset]++;
                 p_cur->cs.val_c[i]--;
                 aprx_val -= p_cur->cs.banknote_vals[i];
+                is_exit = false;
             }
         }
+
+        if (is_exit) break;
     }
 
     wr.unexchanged.mantissa = unex_mantissa;
     wr.unexchanged.val_exp = p_val->val_exp;
-    printf("Unex mantissa: %ld\n", wr.unexchanged.mantissa);
 
     return wr;
 }

@@ -8,6 +8,7 @@
 
 /*
  * Preprocessor definition for enabling and disabling colorisation
+ * In order to disable colorisation just undefine COLORISE
  */
 #define COLORISE
 #define WELCOME_COLOR           FCOLOR_YELLOW
@@ -29,7 +30,7 @@
 
     #define BCOLOR_RED          BACKGROUND_RED
     #define BCOLOR_GREEN        BACKGROUND_GREEN
-    #define BCOLOR_BLUE         BACKGROUND_BLUE
+    #define BCOLOR_BLUE         BACKGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
     #define BCOLOR_GRAY         BACKGROUND_GRAY
     #define COLOR_CLEAR         FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
 #endif

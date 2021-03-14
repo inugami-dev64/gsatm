@@ -56,7 +56,7 @@ LIB_EXPORT void CALL_CON sprintSafeFloat (
 
     sprintf (
         str,
-        "%ld",
+        "%lld",
         sf.mantissa
     );
 
@@ -140,13 +140,13 @@ LIB_EXPORT WithdrawReport CALL_CON convertCurrency (
     exp = src_exp;
     if(abs(src_exp) > abs(dst_exp)) {
         dst_ex.val_exp = exp;
-        dst_ex.mantissa *= al_pow(10, src_exp - dst_exp);
+        dst_ex.mantissa *= al_pow(10, abs(src_exp) - abs(dst_exp));
     }
 
     else if(abs(dst_exp) > abs(src_exp)) {
         exp = dst_exp;
         src_ex.val_exp = exp;
-        src_ex.mantissa *= al_pow(10, dst_exp - src_exp);
+        src_ex.mantissa *= al_pow(10, abs(dst_exp) - abs(src_exp));
     }
 
 
@@ -154,7 +154,7 @@ LIB_EXPORT WithdrawReport CALL_CON convertCurrency (
     amount *= al_pow(10, abs(exp));
 
     SafeFloat cn_value;
-    cn_value.mantissa = (uint64_t) (((float) amount / (float) p_src->ex.mantissa) * (float) p_dst->ex.mantissa);
+    cn_value.mantissa = (uint64_t) (((double) amount / (double) p_src->ex.mantissa) * (double) p_dst->ex.mantissa);
     cn_value.val_exp = exp;
 
     char buf[64] = { 0 };

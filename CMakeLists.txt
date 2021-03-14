@@ -30,7 +30,6 @@ if(WIN32)
     add_library (
         ${ATM_LIB_TARGET} SHARED
         ${ATM_SOURCES}
-        gui_wrappers.c
     )
 
     target_include_directories (
