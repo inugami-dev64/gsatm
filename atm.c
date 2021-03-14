@@ -380,14 +380,8 @@ void __listStatus() {
             );
         }
 
-        for(size_t j = 0; j < p_ci->cs.banknote_c; j++) {
-            #ifdef _WIN32
-                printf("%lld - %lld; ", p_ci->cs.banknote_vals[j], p_ci->cs.val_c[j]);        
-            #endif
-            #ifdef __linux__
-                printf("%ld - %ld; ", p_ci->cs.banknote_vals[j], p_ci->cs.val_c[j]);        
-            #endif
-        }
+        for(size_t j = 0; j < p_ci->cs.banknote_c; j++)
+            printf("%lld - %lld; ", p_ci->cs.banknote_vals[j], p_ci->cs.val_c[j]);        
 
         printf("\n");
     }
@@ -485,13 +479,9 @@ void __convertCurrency (
         #else 
             fprintf(stderr, "%s\n", msg);
         #endif
-        return;
 
     }
-    else if(is_err) {
-        fprintf(stderr, "%s\n", msg);
-        return;
-    }
+    else if(is_err) fprintf(stderr, "%s\n", msg);
 
     // Print money withdrawal information 
     if(!__is_basic)
@@ -502,7 +492,7 @@ void __convertCurrency (
             if(!__is_basic) {
                 #if defined(COLORISE) && defined(__linux__)
                     printf (
-                        "%s%ld%s %s%s%s | %ld\n", 
+                        "%s%lld%s %s%s%s | %lld\n", 
                         WITHDRAW_COLOR,
                         wr.cs.banknote_vals[i], 
                         COLOR_CLEAR,
@@ -520,28 +510,23 @@ void __convertCurrency (
                     printf("%s", p_dst->code);
                     SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
                     printf(" | %lld\n", wr.cs.val_c[i]);
-                #else
-                    goto wr_default;
+                #else 
+                    printf (
+                        "%lld %s | %lld\n", 
+                        wr.cs.banknote_vals[i], 
+                        p_dst->code,
+                        wr.cs.val_c[i]
+                    );
                 #endif
             }
 
             else {
-            wr_default: 
-                #if defined(__linux__)
-                    printf (
-                        "%ld %s %ld\n", 
-                        wr.cs.banknote_vals[i], 
-                        p_dst->code,
-                        wr.cs.val_c[i]
-                    );
-                #elif defined(_WIN32)
-                    printf (
-                        "%ld %s %ld\n", 
-                        wr.cs.banknote_vals[i], 
-                        p_dst->code,
-                        wr.cs.val_c[i]
-                    );
-                #endif
+                printf (
+                    "%lld %s %lld\n", 
+                    wr.cs.banknote_vals[i], 
+                    p_dst->code,
+                    wr.cs.val_c[i]
+                );
             }
         }
     }
