@@ -483,10 +483,13 @@ void __convertCurrency (
             SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
         #else 
             fprintf(stderr, "%s\n", msg);
-        #endif
-
+        #endif  
+        return;
     }
-    else if(is_err) fprintf(stderr, "%s\n", msg);
+    else if(is_err) {
+        fprintf(stderr, "%s\n", msg);
+        return;
+    }
 
     // Print money withdrawal information 
     if(!__is_basic)

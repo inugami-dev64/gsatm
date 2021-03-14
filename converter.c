@@ -137,6 +137,19 @@ LIB_EXPORT WithdrawReport CALL_CON convertCurrency (
     WithdrawMode cm
 ) {
     WithdrawReport wr = {0};
+
+    // Check if source currency is correct 
+    if(!p_src){
+        wr.error_code = WDR_ERR_INVALID_SRC_CURRENCY_CODE;
+        return wr;
+    }
+
+    // Check if destination currency is correnct
+    if(!p_dst) {
+        wr.error_code = WDR_ERR_INVALID_DST_CURRENCY_CODE;
+        return wr;
+    }
+
     
     // Make sure that exponants are even (bigger exponant is taken into count)
     int exp;
@@ -181,19 +194,6 @@ LIB_EXPORT WithdrawReport CALL_CON convertCurrency (
     for(uint64_t i = 0; i < p_dst->cs.banknote_c; i++)
         dst_c += p_dst->cs.banknote_vals[i] * p_dst->cs.val_c[i];
 
-    /**** Error checking *****/
-    // Check if source currency is correct 
-    if(!p_src){
-        wr.error_code = WDR_ERR_INVALID_SRC_CURRENCY_CODE;
-        return wr;
-    }
-
-    // Check if destination currency is correnct
-    if(!p_dst) {
-        wr.error_code = WDR_ERR_INVALID_DST_CURRENCY_CODE;
-        return wr;
-    }
-
     if(amount > ATM_CASH_HANDLING_LIMIT) {
         wr.error_code = WDR_ERR_CASH_HANDLING_LIMIT_REACHED;
         return wr;
@@ -205,7 +205,6 @@ LIB_EXPORT WithdrawReport CALL_CON convertCurrency (
         wr.error_code = WDR_ERR_NOT_ENOUGH_CASH;
         return wr;
     }
-
 
     // Start converting the currency
     switch(cm)
