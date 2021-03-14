@@ -14,8 +14,8 @@ In order to generate Visual Studio solution follow these steps:
 ```
 git clone --recursive https://github.com/inugami-dev64/gsatm
 cd gsatm
-mkdir build
-.\build_curl.bat [VS VERSION] build
+.\build_curl.bat [VS VERSION]
+cd build
 cmake ..
 ```
 Where [VS VERSION] specifies the version of Visual Studio used.  

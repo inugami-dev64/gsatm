@@ -381,7 +381,7 @@ void __listStatus() {
         }
 
         for(size_t j = 0; j < p_ci->cs.banknote_c; j++)
-            printf("%ld - %ld; ", p_ci->cs.banknote_vals[j], p_ci->cs.val_c[j]);        
+            printf("%lld - %lld; ", p_ci->cs.banknote_vals[j], p_ci->cs.val_c[j]);        
 
         printf("\n");
     }
@@ -492,7 +492,7 @@ void __convertCurrency (
             if(!__is_basic) {
                 #if defined(COLORISE) && defined(__linux__)
                     printf (
-                        "%s%ld%s %s%s%s | %ld\n", 
+                        "%s%lld%s %s%s%s | %lld\n", 
                         WITHDRAW_COLOR,
                         wr.cs.banknote_vals[i], 
                         COLOR_CLEAR,
@@ -503,16 +503,16 @@ void __convertCurrency (
                     );
                 #elif defined(COLORISE) && defined(_WIN32)
                     SetConsoleTextAttribute(__std_handle, WITHDRAW_COLOR);
-                    printf("%ld", wr.cs.banknote_vals[i]);
+                    printf("%lld", wr.cs.banknote_vals[i]);
                     SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
                     printf(" ");
                     SetConsoleTextAttribute(__std_handle, CURRENCY_COLOR);
                     printf("%s", p_dst->code);
                     SetConsoleTextAttribute(__std_handle, COLOR_CLEAR);
-                    printf(" | %ld\n", wr.cs.val_c[i]);
+                    printf(" | %lld\n", wr.cs.val_c[i]);
                 #else 
                     printf (
-                        "%ld %s | %ld\n", 
+                        "%lld %s | %lld\n", 
                         wr.cs.banknote_vals[i], 
                         p_dst->code,
                         wr.cs.val_c[i]
@@ -522,7 +522,7 @@ void __convertCurrency (
 
             else {
                 printf (
-                    "%ld %s %ld\n", 
+                    "%lld %s %lld\n", 
                     wr.cs.banknote_vals[i], 
                     p_dst->code,
                     wr.cs.val_c[i]
@@ -534,8 +534,8 @@ void __convertCurrency (
 
     SafeFloat src_unex_fl = wr.unexchanged;
     src_unex_fl.mantissa = (uint64_t) (
-        ((float) wr.unexchanged.mantissa / (float) p_dst->ex.mantissa) * 
-        (float) p_src->ex.mantissa
+        ((double) wr.unexchanged.mantissa / (double) p_dst->ex.mantissa) * 
+        (double) p_src->ex.mantissa
     );
 
     // Check if rounding needs to be done

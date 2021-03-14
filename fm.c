@@ -1,8 +1,6 @@
 #define __FM_C
 #include "fm.h"
 
-extern int errno;
-
 /*****************************/
 /***** Private functions *****/
 /*****************************/

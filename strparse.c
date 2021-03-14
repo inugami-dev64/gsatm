@@ -88,7 +88,7 @@ LIB_EXPORT void CALL_CON str_RmLineComments (
         end = strchr(beg, 0x0A);
         if(!beg) return;
         if(!end) end = buf + strlen(buf);
-        for(size_t i = 0; i < end - beg; i++)
+        for(size_t i = 0; i < (size_t) (end - beg); i++)
             *(beg + i) = 0x20;
 
         end++;

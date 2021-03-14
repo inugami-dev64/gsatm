@@ -269,7 +269,7 @@ LIB_EXPORT void* CALL_CON findValue (
     else {
         // Perform linear search for the key
         int64_t i = 0;
-        for(i = index; i < p_hm->map_size; i++) {
+        for(i = index; i < (int64_t) p_hm->map_size; i++) {
             if
             (
                 p_hm->map_data[i].key && 

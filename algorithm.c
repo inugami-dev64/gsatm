@@ -104,9 +104,9 @@ static uint16_t __al_FindMinCashBase10Exp (
     }
 
     else {
-        uint64_t middle = (end + beg) / 2;
-        uint64_t left = __al_FindMinCashBase10Exp(p_cs, beg, middle);
-        uint64_t right = __al_FindMinCashBase10Exp(p_cs, middle, end);
+        uint16_t middle = (end + beg) / 2;
+        uint16_t left = __al_FindMinCashBase10Exp(p_cs, beg, middle);
+        uint16_t right = __al_FindMinCashBase10Exp(p_cs, middle, end);
 
         return left < right ? left : right;
     }
